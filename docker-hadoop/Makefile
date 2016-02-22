@@ -21,18 +21,21 @@ $(build): Dockerfile
 $(cid_file): $(build)
 	docker create --name $(CONTAINER_NAME) $(IMAGE_NAME)
 	echo $(CONTAINER_NAME) > $@
+
+#how to run:
+start: $(cid_file) 
+	docker start $(CONTAINER_NAME)
 	#docker inspect --format '{{ .Config.Hostname }}' `cat build/container_id` > $(host_file)
 	#below only works with bridge networking
 	docker inspect --format '{{ .NetworkSettings.IPAddress }}' $(CONTAINER_NAME) > $(host_file)
 	#docker start -d $(NAME) /etc/bootstrap.sh -d > $@
 
-#how to run:
-start: $(cid_file) 
-	docker start $(CONTAINER_NAME)
+$(host_file): $(cid_file)
+	echo "is the container running? this won't work otherwise"
+	docker inspect --format '{{ .NetworkSettings.IPAddress }}' $(CONTAINER_NAME) > $(host_file)
 
 stop:
 	-docker stop $(CONTAINER_NAME)
-	-rm $(cid_file)
 
 clean: clean_container clean_image
 	-rm $(host_file)

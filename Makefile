@@ -3,7 +3,7 @@ all:
 start:
 	#start hadoop master
 	make -C docker-hadoop start
-	#generate a config
+	#generate a config (docker container needs to be running)
 	make -C ./hadoop-config-gen clean all install
 
 stop:
