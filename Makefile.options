@@ -1,0 +1,5 @@
+# docker volumes don't mount when pointed at nfs
+# (at least on miga.cs.sfu.ca), so we keep them in the
+# local home dir
+#must be an absolute path
+HADOOP_CONFIG_DIR := ~/hadoop-config
