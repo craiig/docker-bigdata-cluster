@@ -46,7 +46,9 @@ run_shell:
 	docker run -ti $(NAME) bash
 
 #don't use this, just for reference
-spark-test:
+test: start
+	docker exec -it $(CONTAINER_NAME) \
+	sh -c 'cd /usr/local/spark && \
 	./bin/spark-submit --class org.apache.spark.examples.SparkPi \
 	    --master yarn \
 	    --deploy-mode cluster \
@@ -54,4 +56,4 @@ spark-test:
 	    --executor-memory 2g \
 	    --executor-cores 1 \
 	    lib/spark-examples*.jar \
-	    10
+	    10'
