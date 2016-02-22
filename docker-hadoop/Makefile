@@ -1,5 +1,5 @@
-IMAGE_NAME := hadoop_master
-CONTAINER_NAME := hadoop_master
+IMAGE_NAME := hadoop_master-$(shell whoami)
+CONTAINER_NAME := hadoop_master-$(shell whoami)
 
 #useful files
 cid_file := build/container_id

@@ -1,7 +1,7 @@
 all: start
 
-IMAGE_NAME := spark
-CONTAINER_NAME := spark
+IMAGE_NAME := spark-$(shell whoami)
+CONTAINER_NAME := spark-$(shell whoami)
 
 #needs HADOOP_CONFIG_DIR
 include ../Makefile.options
