@@ -48,8 +48,12 @@ clean_image:
 	-docker rmi $(IMAGE_NAME)
 	-rm $(build)
 
+shell: start
+	docker exec -it $(CONTAINER_NAME) bash
+
+
 #** interactive commands for running a one off
-# don't use these 
+# don't use these  if you don't know the difference between run and exec
 run_shell: run_shell_hostnetworking
 
 run_shell_hostnetworking:
