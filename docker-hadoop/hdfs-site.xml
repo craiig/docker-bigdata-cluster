@@ -3,4 +3,16 @@
         <name>dfs.replication</name>
         <value>1</value>
     </property>
+    <property>
+        <name>dfs.support.append</name>
+        <value>true</value>
+    </property>
+    <property>
+        <name>dfs.datanode.synconclose</name>
+        <value>true</value>
+    </property>
+    <property>
+        <name>dfs.durable.sync</name>
+        <value>1</value>
+    </property>
 </configuration>
