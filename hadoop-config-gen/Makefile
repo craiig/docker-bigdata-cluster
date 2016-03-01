@@ -3,8 +3,8 @@
 
 
 include ../Makefile.options
-HADOOP_MASTER_HOSTNAME_FILE := ../docker-hadoop/build/hostname
-HADOOP_MASTER_HOSTNAME := $(shell cat $(HADOOP_MASTER_HOSTNAME_FILE))
+#HADOOP_MASTER_HOSTNAME_FILE := ../docker-hadoop/build/hostname
+#HADOOP_MASTER_HOSTNAME := $(shell cat $(HADOOP_MASTER_HOSTNAME_FILE))
 OUT := out/
 
 $(OUT):

@@ -1,5 +1,12 @@
+# HADOOP_CONFIG_DIR is a non-nfs mount where hadoop client config
+# can be stored.
 # docker volumes don't mount when pointed at nfs
 # (at least on miga.cs.sfu.ca), so we keep them in the
-# local home dir
-#must be an absolute path
 HADOOP_CONFIG_DIR := ~/hadoop-config
+
+# locate some dependnecies, such as the ip address of the hadoop master
+#
+# use thisdir to get the abs path of this include file
+THISDIR := $(dir $(lastword $(MAKEFILE_LIST)))
+HADOOP_MASTER_HOSTNAME_FILE := $(THISDIR)/docker-hadoop/build/hostname
+HADOOP_MASTER_HOSTNAME := $(shell cat $(HADOOP_MASTER_HOSTNAME_FILE))
