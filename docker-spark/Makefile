@@ -45,7 +45,7 @@ shell:
 run_shell:
 	docker run -ti $(NAME) bash
 
-#don't use this, just for reference
+#command that runs a test against the hadoop setup - should work
 test: start
 	docker exec -it $(CONTAINER_NAME) \
 	sh -c 'cd /usr/local/spark && \
