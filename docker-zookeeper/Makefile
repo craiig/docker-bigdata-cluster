@@ -3,6 +3,8 @@ all: start
 IMAGE_NAME := zookeeper-$(shell whoami)
 CONTAINER_NAME := zookeeper-$(shell whoami)
 
+hostname := build/hostname
+
 include ../Makefile.options
 
 build := build/image
@@ -22,11 +24,14 @@ $(cid_file): $(build)
 
 start: $(cid_file)
 	docker start $(CONTAINER_NAME)
+	docker inspect --format '{{ .NetworkSettings.IPAddress }}' $(CONTAINER_NAME) > $(hostname)
 
 stop:
 	-docker stop $(CONTAINER_NAME)
 
 clean: clean_container clean_image
+	-rm $(hostname)
+
 clean_container:
 	-docker rm -v $(CONTAINER_NAME)
 	-rm $(cid_file)

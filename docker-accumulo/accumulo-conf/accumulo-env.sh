@@ -28,7 +28,7 @@
 ### on a single machine.
 ###
 if [[ -z $HADOOP_HOME ]] ; then
-   test -z "$HADOOP_PREFIX"      && export HADOOP_PREFIX=/usr/local/hadoop
+   test -z "$HADOOP_PREFIX"      && export HADOOP_PREFIX=/path/to/hadoop
 else
    HADOOP_PREFIX="$HADOOP_HOME"
    unset HADOOP_HOME
@@ -38,13 +38,13 @@ fi
 test -z "$HADOOP_CONF_DIR"       && export HADOOP_CONF_DIR="$HADOOP_PREFIX/etc/hadoop"
 
 test -z "$JAVA_HOME"             && export JAVA_HOME=/path/to/java
-test -z "$ZOOKEEPER_HOME"        && export ZOOKEEPER_HOME=/usr/local/zookeeper
+test -z "$ZOOKEEPER_HOME"        && export ZOOKEEPER_HOME=/path/to/zookeeper
 test -z "$ACCUMULO_LOG_DIR"      && export ACCUMULO_LOG_DIR=$ACCUMULO_HOME/logs
 if [[ -f ${ACCUMULO_CONF_DIR}/accumulo.policy ]]
 then
    POLICY="-Djava.security.manager -Djava.security.policy=${ACCUMULO_CONF_DIR}/accumulo.policy"
 fi
-test -z "$ACCUMULO_TSERVER_OPTS" && export ACCUMULO_TSERVER_OPTS="${POLICY} -Xmx384m -Xms384m "
+test -z "$ACCUMULO_TSERVER_OPTS" && export ACCUMULO_TSERVER_OPTS="${POLICY} -Xmx256m -Xms256m "
 test -z "$ACCUMULO_MASTER_OPTS"  && export ACCUMULO_MASTER_OPTS="${POLICY} -Xmx128m -Xms128m"
 test -z "$ACCUMULO_MONITOR_OPTS" && export ACCUMULO_MONITOR_OPTS="${POLICY} -Xmx64m -Xms64m"
 test -z "$ACCUMULO_GC_OPTS"      && export ACCUMULO_GC_OPTS="-Xmx64m -Xms64m"
@@ -60,7 +60,7 @@ export ACCUMULO_KILL_CMD='kill -9 %p'
 # export LD_LIBRARY_PATH=${HADOOP_PREFIX}/lib/native/${PLATFORM}:${LD_LIBRARY_PATH}
 
 # Should the monitor bind to all network interfaces -- default: false
-# export ACCUMULO_MONITOR_BIND_ALL="true"
+export ACCUMULO_MONITOR_BIND_ALL="true"
 
 # Should process be automatically restarted
 # export ACCUMULO_WATCHER="true"

@@ -19,5 +19,11 @@ ENV HADOOP_PREFIX /usr/local/hadoop
 
 RUN yes | cp -f $ACCUMULO_HOME/conf/examples/512MB/standalone/* $ACCUMULO_HOME/conf
 
-CMD ["/bin/sh", "-c", "while true; do speep 1000; done"]
+ADD out/* $ACCUMULO_HOME/conf/
 
+
+ADD bootstrap.sh /etc/bootstrap.sh
+RUN chown root:root /etc/bootstrap.sh
+RUN chmod 700 /etc/bootstrap.sh
+
+CMD ["/etc/bootstrap.sh", "-d"]
