@@ -1,0 +1,39 @@
+znik@:
+
+1.
+When running 'bin/accumulo init' one gets warnings about these parameters.
+I cannot be sure that this setting is mandatory.
+
+hadoop/etc/hdfs-site.xml:
++    <property>
++        <name>dfs.support.append</name>
++        <value>true</value>
++    </property>
++    <property>
++        <name>dfs.datanode.synconclose</name>
++        <value>true</value>
++    </property>
++    <property>
++        <name>dfs.durable.sync</name>
++        <value>1</value>
++    </property>
+
+
+2.
+When trying to log in into the accumulo shell, you might get an error stating that tabletservers are not run. If 'bin/accumulo init' and 'bin/start-all.sh' have been launched, it means that there is a problem with their memory settings and they get killed by the OOM killer.
+
+To get more information, check out accumulo/logs/*tserver*.log
+
+Here is the explanation and a solution: http://stackoverflow.com/questions/28519958/accumulothere-are-no-tablet-servers
+
+Basically, you need to change how much memory is allocated for tabletservers in conf/accumulo-env.sh:
+-test -z "$ACCUMULO_TSERVER_OPTS" && export ACCUMULO_TSERVER_OPTS="${POLICY} -Xmx128m -Xms128m "
+ +test -z "$ACCUMULO_TSERVER_OPTS" && export ACCUMULO_TSERVER_OPTS="${POLICY} -Xmx256m -Xms256m "
+
+This amount should be higher than the sum of several memory allocations to tservers in conf/accumulo-site.xml.
+
+
+
+
+
+ 
