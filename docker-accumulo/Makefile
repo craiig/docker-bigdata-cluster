@@ -21,6 +21,9 @@ $(build): Dockerfile
 cid_file := build/container_id
 
 $(cid_file): $(build) $(HADOOP_CONFIG_DIR)/core-site.xml
+	mkdir -p $(OUT)
+	cp accumulo-conf/accumulo-env.sh $(OUT)/
+	sed s/HADOOPMASTERIP/${HADOOP_IP}/g accumulo-conf/accumulo-site.xml | sed s/ZOOKEEPERHOSTIP/${ZOOKEEPER_IP}/g > $(OUT)/accumulo-site.xml
 	docker create							\
 		--volumes-from zookeeper-$(shell whoami)		\
 		--volumes-from hadoop_master-$(shell whoami)		\
@@ -28,12 +31,7 @@ $(cid_file): $(build) $(HADOOP_CONFIG_DIR)/core-site.xml
 		--name $(IMAGE_NAME) $(CONTAINER_NAME)
 	echo $(CONTAINER_NAME) > $@
 
-install:
-	mkdir -p $(OUT)
-	cp accumulo-conf/accumulo-env.sh $(OUT)/
-	sed s/HADOOPMASTERIP/${HADOOP_IP}/g accumulo-conf/accumulo-site.xml | sed s/ZOOKEEPERHOSTIP/${ZOOKEEPER_IP}/g > $(OUT)/accumulo-site.xml
-
-start: install $(cid_file)
+start: $(cid_file)
 	docker start $(CONTAINER_NAME)
 
 stop:
