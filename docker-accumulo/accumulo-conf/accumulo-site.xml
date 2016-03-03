@@ -23,13 +23,13 @@
 
   <property>
     <name>instance.volumes</name>
-    <value>hdfs://localhost:9000/accumulo</value>
+    <value>hdfs://HADOOPMASTERIP:9000/accumulo</value>
     <description>comma separated list of URIs for volumes. example: hdfs://localhost:9000/accumulo</description>
   </property>
 
   <property>
     <name>instance.zookeeper.host</name>
-    <value>localhost:2181</value>
+    <value>ZOOKEEPERHOSTIP:2181</value>
     <description>comma separated list of zookeeper servers</description>
   </property>
 
@@ -44,7 +44,7 @@
 
   <property>
     <name>instance.secret</name>
-    <value>HELLOTHISISACCUMULO</value>
+    <value>DEFAULT</value>
     <description>A secret unique to a given instance that all servers must know in order to communicate with one another.
       Change it before initialization. To
       change it later use ./bin/accumulo org.apache.accumulo.server.util.ChangeSecret --old [oldpasswd] --new [newpasswd],
@@ -54,7 +54,7 @@
 
   <property>
     <name>tserver.memory.maps.max</name>
-    <value>256M</value>
+    <value>80M</value>
   </property>
 
   <property>
@@ -64,12 +64,12 @@
 
   <property>
     <name>tserver.cache.data.size</name>
-    <value>15M</value>
+    <value>7M</value>
   </property>
 
   <property>
     <name>tserver.cache.index.size</name>
-    <value>40M</value>
+    <value>20M</value>
   </property>
 
   <property>
@@ -127,7 +127,7 @@
 
   <property>
     <name>tserver.walog.max.size</name>
-    <value>256M</value>
+    <value>100M</value>
   </property>
 
   <property>

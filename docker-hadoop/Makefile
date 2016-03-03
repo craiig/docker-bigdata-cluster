@@ -19,7 +19,7 @@ $(build): Dockerfile
 	touch $@
 
 $(cid_file): $(build)
-	docker create --name $(CONTAINER_NAME) $(IMAGE_NAME)
+	docker create -v /usr/local/hadoop --name $(CONTAINER_NAME) $(IMAGE_NAME)
 	echo $(CONTAINER_NAME) > $@
 
 #how to run:
