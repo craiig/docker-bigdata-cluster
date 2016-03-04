@@ -29,21 +29,13 @@ stop:
 
 clean: clean_container clean_image
 clean_container:
-	-docker rm -v $(CONTAINER_NAME)
-	-rm $(cid_file)
+	-docker rm -v $(CONTAINER_NAME) && rm $(cid_file)
 
 clean_image:
-	-docker rmi $(IMAGE_NAME)
-	-rm $(build)
+	-docker rmi $(IMAGE_NAME) && rm $(build)
 
-shell:
+shell: start
 	docker exec -it $(CONTAINER_NAME) bash
-
-
-#old interactive commands
-
-run_shell:
-	docker run -ti $(NAME) bash
 
 #command that runs a test against the hadoop setup - should work
 test: start

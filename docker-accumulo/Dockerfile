@@ -30,7 +30,7 @@ CMD ["/etc/bootstrap.sh", "-d"]
 
 
 # 2181 Zookeeper, 2888 Zookeeper, 3888 Zookeeper
-EXPOSE 2181 2888 3888
+# EXPOSE 2181 2888 3888
 
 # 4560 Accumulo monitor, 11224 Accumulo Logger, 12234 Accumulo Tracer, 50095 Accumulo HTTP monitor
 EXPOSE 4560 11224 12234 50095

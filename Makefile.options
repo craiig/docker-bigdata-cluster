@@ -2,7 +2,8 @@
 # can be stored.
 # docker volumes don't mount when pointed at nfs
 # (at least on miga.cs.sfu.ca), so we keep them in the
-HADOOP_CONFIG_DIR := ~/hadoop-config
+CONFIGS_ROOT := ~/docker-volumes
+HADOOP_CONFIG_DIR := $(CONFIGS_ROOT)/hadoop-config
 
 # locate some dependnecies, such as the ip address of the hadoop master
 #

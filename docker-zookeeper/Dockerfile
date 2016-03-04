@@ -3,7 +3,7 @@ FROM centos
 RUN curl http://apache.mirror.gtcomm.net/zookeeper/zookeeper-3.4.6/zookeeper-3.4.6.tar.gz | tar -xz -C /usr/local
 RUN ln -s /usr/local/zookeeper-3.4.6 /usr/local/zookeeper
 
-RUN cp /usr/local/zookeeper/conf/zoo_sample.cfg /usr/local/zookeeper/conf/zoo.cfg
+ADD ./conf /usr/local/zookeeper/conf
 
 RUN curl -LO 'http://download.oracle.com/otn-pub/java/jdk/7u71-b14/jdk-7u71-linux-x64.rpm' -H 'Cookie: oraclelicense=accept-securebackup-cookie'
 RUN rpm -i jdk-7u71-linux-x64.rpm

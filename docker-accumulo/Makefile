@@ -4,29 +4,30 @@ IMAGE_NAME := accumulo-$(shell whoami)
 CONTAINER_NAME := accumulo-$(shell whoami)
 OUT := out/
 
-HADOOP_IP_FILE := ../docker-hadoop/build/hostname
-ZOOKEEPER_IP_FILE := ../docker-zookeeper/build/hostname
-
-HADOOP_IP := $(shell cat $(HADOOP_IP_FILE))
-ZOOKEEPER_IP := $(shell cat $(ZOOKEEPER_IP_FILE))
-
+#provides HADOOP_MASTER_HOSTNAME_FILE
 include ../Makefile.options
+
+ZOOKEEPER_IP_FILE := ../docker-zookeeper/build/hostname
+HADOOP_IP = $(shell cat $(HADOOP_MASTER_HOSTNAME_FILE))
+ZOOKEEPER_IP = $(shell cat $(ZOOKEEPER_IP_FILE))
 
 build := build/image
 build: $(build)
-$(build): Dockerfile
+#TODO this build requires the IPs be known at build time, this should be re-written to use a volume
+$(build): Dockerfile $(HADOOP_MASTER_HOSTNAME_FILE) $(ZOOKEEPER_IP_FILE)
+	mkdir -p $(OUT)
+	cp accumulo-conf/accumulo-env.sh $(OUT)/
+	sed s/HADOOPMASTERIP/${HADOOP_IP}/g accumulo-conf/accumulo-site.xml | sed s/ZOOKEEPERHOSTIP/${ZOOKEEPER_IP}/g > $(OUT)/accumulo-site.xml
 	mkdir -p build/
 	docker build -t $(IMAGE_NAME) .
 
 cid_file := build/container_id
 
 $(cid_file): $(build) $(HADOOP_CONFIG_DIR)/core-site.xml
-	mkdir -p $(OUT)
-	cp accumulo-conf/accumulo-env.sh $(OUT)/
-	sed s/HADOOPMASTERIP/${HADOOP_IP}/g accumulo-conf/accumulo-site.xml | sed s/ZOOKEEPERHOSTIP/${ZOOKEEPER_IP}/g > $(OUT)/accumulo-site.xml
 	docker create							\
 		--volumes-from zookeeper-$(shell whoami)		\
 		--volumes-from hadoop_master-$(shell whoami)		\
+		-v $(HADOOP_CONFIG_DIR):/usr/local/hadoop/etc/hadoop \
 		--privileged=true 					\
 		--name $(IMAGE_NAME) $(CONTAINER_NAME)
 	echo $(CONTAINER_NAME) > $@
@@ -37,7 +38,7 @@ start: $(cid_file)
 stop:
 	-docker stop $(CONTAINER_NAME)
 
-clean: clean_container clean_image
+clean: stop clean_container clean_image
 	rm -r $(OUT)
 
 clean_container:

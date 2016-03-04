@@ -29,7 +29,7 @@ start: $(cid_file)
 stop:
 	-docker stop $(CONTAINER_NAME)
 
-clean: clean_container clean_image
+clean: stop clean_container clean_image
 	-rm $(hostname)
 
 clean_container:
