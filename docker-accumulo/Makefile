@@ -39,7 +39,7 @@ stop:
 	-docker stop $(CONTAINER_NAME)
 
 clean: stop clean_container clean_image
-	rm -r $(OUT)
+	-rm -r $(OUT)
 
 clean_container:
 	-docker rm -v $(CONTAINER_NAME)
@@ -48,6 +48,6 @@ clean_container:
 clean_image:
 	-docker rmi $(IMAGE_NAME)
 
-shell:
+shell: start
 	docker exec -it $(CONTAINER_NAME) bash
 
