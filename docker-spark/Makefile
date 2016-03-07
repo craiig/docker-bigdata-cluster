@@ -6,9 +6,12 @@ CONTAINER_NAME := spark-$(shell whoami)
 #needs HADOOP_CONFIG_DIR
 include ../Makefile.options
 
+spark-1.6.0-bin-hadoop2.6.tgz:
+	wget http://mirror.its.dal.ca/apache/spark/spark-1.6.0/spark-1.6.0-bin-hadoop2.6.tgz
+
 build := build/image
 build: $(build)
-$(build): Dockerfile
+$(build): Dockerfile spark-1.6.0-bin-hadoop2.6.tgz
 	mkdir -p build/
 	docker build -t $(IMAGE_NAME) .
 	touch $@
