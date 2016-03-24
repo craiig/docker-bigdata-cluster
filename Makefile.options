@@ -2,12 +2,18 @@
 # can be stored.
 # docker volumes don't mount when pointed at nfs
 # (at least on miga.cs.sfu.ca), so we keep them in the
-CONFIGS_ROOT := ~/docker-volumes
+CONFIGS_ROOT := $(shell readlink -f ~/docker-volumes)
 HADOOP_CONFIG_DIR := $(CONFIGS_ROOT)/hadoop-config
+HADOOP_DATA_DIR := $(CONFIGS_ROOT)/hadoop-master
+
+#directory rules to make directories
+#$(HADOOP_DATA_DIR) $(HADOOP_CONFIG_DIR):
+	#mkdir -p $@
 
 # locate some dependnecies, such as the ip address of the hadoop master
 #
 # use thisdir to get the abs path of this include file
 THISDIR := $(dir $(lastword $(MAKEFILE_LIST)))
+ROOT := $(shell readlink -f $(THISDIR))
 HADOOP_MASTER_HOSTNAME_FILE := $(THISDIR)/docker-hadoop/build/hostname
 HADOOP_MASTER_HOSTNAME := $(shell cat $(HADOOP_MASTER_HOSTNAME_FILE))
