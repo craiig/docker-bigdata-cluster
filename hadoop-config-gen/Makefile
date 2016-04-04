@@ -2,6 +2,8 @@
 # given a master hostname, builds configurations for hadoop clients to use
 
 
+all: $(OUT)
+
 include ../Makefile.options
 #HADOOP_MASTER_HOSTNAME_FILE := ../docker-hadoop/build/hostname
 #HADOOP_MASTER_HOSTNAME := $(shell cat $(HADOOP_MASTER_HOSTNAME_FILE))
@@ -18,7 +20,7 @@ all: $(OUT) $(generated)
 clean:
 	-rm -rf $(OUT)/*
 
-$(OUT)/%: templates/%.template
+$(OUT)/%: templates/%.template $(HADOOP_MASTER_HOSTNAME_FILE)
 	sed s/{{MASTER}}/${HADOOP_MASTER_HOSTNAME}/g $< > $@
 
 install: $(generated) $(HADOOP_CONFIG_DIR)
