@@ -43,7 +43,7 @@ $(build): Dockerfile $(packages)
 	docker build -t $(IMAGE_NAME) .
 	touch $@
 
-$(cid_file): $(build) $(HADOOP_DATA_DIR)
+$(cid_file): $(build) | $(HADOOP_DATA_DIR)
 	docker create \
 		--volume=$(HADOOP_DATA_DIR):/vol/hadoop-master \
 		--name $(CONTAINER_NAME) $(IMAGE_NAME)
