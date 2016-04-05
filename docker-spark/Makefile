@@ -7,12 +7,28 @@ DOCKER_EXEC := docker exec $(CONTAINER_NAME)
 #needs HADOOP_CONFIG_DIR
 include ../Makefile.options
 
-spark-1.6.0-bin-hadoop2.6.tgz:
-	wget http://mirror.its.dal.ca/apache/spark/spark-1.6.0/spark-1.6.0-bin-hadoop2.6.tgz
+#build has some dependencies on external files which we download once
+#so it's easy to rebuild a container without download times
+packages_dir := build/packages
+packages := java.rpm \
+	spark-1.6.0-bin-hadoop2.6.tgz
+packages := $(packages:%=$(packages_dir)/%)
+.PRECIOUS: $(packages)
+
+$(packages_dir):
+	mkdir -p $(packages_dir)
+
+$(packages_dir)/java.rpm: | $(packages_dir)
+	curl -L \
+		'http://download.oracle.com/otn-pub/java/jdk/8u77-b03/jdk-8u77-linux-x64.rpm'\
+		-H 'Cookie: oraclelicense=accept-securebackup-cookie' > $@
+
+$(packages_dir)/spark-1.6.0-bin-hadoop2.6.tgz: | $(packages_dir)
+	cd $(packages_dir) && wget http://mirror.its.dal.ca/apache/spark/spark-1.6.0/spark-1.6.0-bin-hadoop2.6.tgz
 
 build := build/image
 build: $(build)
-$(build): Dockerfile spark-1.6.0-bin-hadoop2.6.tgz
+$(build): Dockerfile $(packages)
 	mkdir -p build/
 	docker build -t $(IMAGE_NAME) .
 	touch $@
@@ -81,6 +97,7 @@ bdb-prepare-sql-tiny: start
 	../benchmark-bdb/benchmark/runner/prepare-benchmark.sh \
 		--spark \
 		--skip-s3-import \
+		--skip-uploads \
 		--file-format=text \
 		--scale-factor=1 \
 		--spark-host=`cat build/ip` \
@@ -92,6 +109,8 @@ bdb-prepare-sql-1node: start
 	../benchmark-bdb/benchmark/runner/prepare-benchmark.sh \
 		--spark \
 		--skip-s3-import \
+		--skip-uploads \
+		--file-format=text \
 		--file-format=text-deflate \
 		--scale-factor=1 \
 		--spark-host=`cat build/ip` \
@@ -107,6 +126,10 @@ bdb-run-q1a: start
 		--spark-host=`cat build/ip` \
 		--spark-identity-file=`pwd`/build/id_rsa \
 		--query-num=1a
+bdb-perf-q1a: start
+	mkdir -p perf
+	perf record -F 9999 -ag --  docker exec -it spark-cam14 bash -c \
+	"spark-sql -e \"set mapred.reduce.tasks=150; DROP TABLE result_cached; CREATE TABLE result_cached AS SELECT pageURL, pageRank FROM rankings_cached WHERE pageRank > 1000\";"
 
 bdb-run-q1b: start
 	../benchmark-bdb/benchmark/runner/run-query.sh \

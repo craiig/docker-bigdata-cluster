@@ -5,8 +5,13 @@ RUN yum clean all; \
     rpm --rebuilddb; \
     yum install -y openssh-server openssh-clients net-tools which
 
+# oracle java
+COPY build/packages/java.rpm .
+RUN rpm -i java.rpm
+RUN rm java.rpm
+
 #RUN curl http://mirror.its.dal.ca/apache/spark/spark-1.6.0/spark-1.6.0-bin-hadoop2.6.tgz | tar -xz -C /usr/local
-COPY spark-1.6.0-bin-hadoop2.6.tgz /usr/local/
+COPY ./build/packages/spark-1.6.0-bin-hadoop2.6.tgz /usr/local/
 RUN tar -xzf /usr/local/spark-1.6.0-bin-hadoop2.6.tgz -C /usr/local
 
 RUN cd /usr/local && ln -sf spark-1.6.0-bin-hadoop2.6 spark
@@ -43,11 +48,10 @@ RUN echo "export YARN_CONF_DIR=$HADOOP_PREFIX/etc/hadoop" >> ~/.bash_profile
 RUN ln -sf /usr/local/spark /root/spark
 ENV PATH $PATH:/usr/local/hadoop/bin:/usr/local/spark/bin
 RUN echo "export PATH=\$PATH:/usr/local/hadoop/bin:/usr/local/spark/bin" >> /root/.bash_profile
-RUN echo "export JAVA_HOME=/usr/lib/jvm/jre" >> /root/.bash_profile 
-RUN mkdir -p /usr/java/ && ln -sf /usr/lib/jvm/jre /usr/java/default
+#commented out for now to test the oracle jdk
+#RUN echo "export JAVA_HOME=/usr/lib/jvm/jre" >> /root/.bash_profile 
+#RUN mkdir -p /usr/java/ && ln -sf /usr/lib/jvm/jre /usr/java/default
 ENV HADOOP_CONF_DIR /usr/local/hadoop/etc/hadoop
-
-RUN yum install -y java-1.8.0-openjdk
 
 EXPOSE 22
 #CMD ["/bin/sh", "-c", "while true; do sleep 1000; done"]
