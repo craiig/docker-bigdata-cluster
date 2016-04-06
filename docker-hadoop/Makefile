@@ -16,7 +16,7 @@ all: $(build)
 #build has some dependencies on external files which we download once
 #so it's easy to rebuild a container without download times
 packages_dir := build/packages
-packages := jdk-7u71-linux-x64.rpm \
+packages := java.rpm \
 	hadoop-native-64-2.7.1.tgz \
 	hadoop-2.7.1.tar.gz
 packages := $(packages:%=$(packages_dir)/%)
@@ -25,8 +25,10 @@ packages := $(packages:%=$(packages_dir)/%)
 $(packages_dir):
 	mkdir -p $(packages_dir)
 
-$(packages_dir)/jdk-7u71-linux-x64.rpm: $(packages_dir)
-	cd $(packages_dir) && curl -LO 'http://download.oracle.com/otn-pub/java/jdk/7u71-b14/jdk-7u71-linux-x64.rpm' -H 'Cookie: oraclelicense=accept-securebackup-cookie'
+$(packages_dir)/java.rpm: $(packages_dir)
+	curl -L \
+		'http://download.oracle.com/otn-pub/java/jdk/8u77-b03/jdk-8u77-linux-x64.rpm'\
+	       	-H 'Cookie: oraclelicense=accept-securebackup-cookie' > $@
 
 $(packages_dir)/hadoop-native-64-2.7.1.tgz: $(packages_dir)
 	cd $(packages_dir) && curl -LO https://github.com/sequenceiq/docker-hadoop-build/releases/download/v2.7.1/hadoop-native-64-2.7.1.tgz

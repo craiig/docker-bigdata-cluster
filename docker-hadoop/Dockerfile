@@ -19,15 +19,23 @@ RUN ssh-keygen -q -N "" -t rsa -f /etc/ssh/ssh_host_rsa_key
 RUN ssh-keygen -q -N "" -t rsa -f /root/.ssh/id_rsa
 RUN cp /root/.ssh/id_rsa.pub /root/.ssh/authorized_keys
 
+# oracle java
+COPY build/packages/java.rpm .
+RUN rpm -i java.rpm
+RUN rm java.rpm
 
-# java
-COPY build/packages/jdk-7u71-linux-x64.rpm .
-RUN rpm -i jdk-7u71-linux-x64.rpm
-RUN rm jdk-7u71-linux-x64.rpm
-
+#some tweaks to line up this older centos java paths
 ENV JAVA_HOME /usr/java/default
 ENV PATH $PATH:$JAVA_HOME/bin:/usr/local/hadoop/bin
 RUN rm /usr/bin/java && ln -s $JAVA_HOME/bin/java /usr/bin/java
+
+#support perf-map-agent to get symbols from java JIT
+RUN yum groupinstall -y 'Development Tools'
+RUN yum install -y git cmake gcc-c++
+RUN cd ~/ && git clone --depth=1 https://github.com/craiig/perf-map-agent
+RUN cd ~/perf-map-agent/ && JAVA_HOME=/usr/java/default/ cmake . && make
+ENV JAVA_TOOL_OPTIONS="-XX:+PreserveFramePointer -agentpath:/root/perf-map-agent/out/libperfmap.so"
+RUN echo "export JAVA_TOOL_OPTIONS=\"-XX:+PreserveFramePointer -agentpath:/root/perf-map-agent/out/libperfmap.so\"" >> ~/.bash_profile
 
 # download native support
 RUN mkdir -p /tmp/native
