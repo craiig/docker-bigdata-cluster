@@ -10,6 +10,16 @@ COPY build/packages/java.rpm .
 RUN rpm -i java.rpm
 RUN rm java.rpm
 
+#support perf-map-agent to get symbols from java JIT
+# pulling from git because relative paths in dockerfile COPY don't work
+RUN yum groupinstall -y 'Development Tools'
+RUN yum install -y git cmake gcc-c++
+RUN cd ~/ && git clone --depth=1 https://github.com/craiig/perf-map-agent
+#COPY perf-map-agent /root/perf-map-agent #use this line when testing perf-map-agent before pushing to git
+RUN cd ~/perf-map-agent/ && JAVA_HOME=/usr/java/default/ cmake . && make
+ENV JAVA_TOOL_OPTIONS="-XX:+PreserveFramePointer -agentpath:/root/perf-map-agent/out/libperfmap.so"
+RUN echo "export JAVA_TOOL_OPTIONS=\"-XX:+PreserveFramePointer -agentpath:/root/perf-map-agent/out/libperfmap.so\"" >> ~/.bash_profile
+
 #RUN curl http://mirror.its.dal.ca/apache/spark/spark-1.6.0/spark-1.6.0-bin-hadoop2.6.tgz | tar -xz -C /usr/local
 COPY ./build/packages/spark-1.6.0-bin-hadoop2.6.tgz /usr/local/
 RUN tar -xzf /usr/local/spark-1.6.0-bin-hadoop2.6.tgz -C /usr/local

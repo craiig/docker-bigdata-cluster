@@ -34,10 +34,11 @@ $(build): Dockerfile $(packages)
 	touch $@
 
 cid_file := build/container_id
-$(cid_file): $(build) $(HADOOP_CONFIG_DIR)/core-site.xml
+$(cid_file): $(build) 
 	docker create \
 		--volumes-from hadoop_master-$(shell whoami) \
 		--privileged=true \
+		--pid=host \
 	       	--name $(IMAGE_NAME) $(CONTAINER_NAME)
 	echo $(CONTAINER_NAME) > $@
 	docker cp $(CONTAINER_NAME):/root/.ssh/id_rsa build/id_rsa
@@ -56,7 +57,7 @@ clean_container:
 clean_image:
 	-docker rmi $(IMAGE_NAME) && rm $(build)
 
-shell: start
+shell: 
 	docker exec -it $(CONTAINER_NAME) bash
 
 #command that runs a test against the hadoop setup - should work
@@ -72,12 +73,25 @@ test: start
 	    lib/spark-examples*.jar \
 	    10'
 
-ssh: start
+ssh: 
 	ssh -o StrictHostKeyChecking=no \
 	       -o UserKnownHostsFile=/dev/null \
        	       -i build/id_rsa root@`cat build/ip`
 
+bdb-prepare-data-5nodes:
+	hdfs dfs -rm -R -f /user/hive
+	$(DOCKER_EXEC) rm -rf metastore_db
+	hdfs dfs -mkdir -p /user/spark/benchmark
+	hdfs dfs -put -f /mnt/scratch/cam14/bdb-data/text-deflate/5nodes/rankings /user/spark/benchmark/rankings
+	hdfs dfs -put -f /mnt/scratch/cam14/bdb-data/text-deflate/5nodes/uservisits /user/spark/benchmark/uservisits
+	hdfs dfs -put -f /mnt/scratch/cam14/bdb-data/text-deflate/5nodes/crawl /user/spark/benchmark/crawl
+	hdfs dfs -cp /user/spark/benchmark/rankings /user/spark/benchmark/scratch
+
+# in progress attempted to drop all tables in metastore, replaced with sledgehammer approach below to clear metastore_db directly
+#$(DOCKER_EXEC) bash -c "cd /root && spark-sql -e 'show tables' | grep -v 'SET' | awk '{print $$1}' | xargs -I '{}' spark-sql -e 'drop table {}'"
 bdb-prepare-data-1node:
+	hdfs dfs -rm -R -f /user/hive
+	$(DOCKER_EXEC) rm -rf metastore_db
 	hdfs dfs -rm -r -f /user/spark/benchmark
 	hdfs dfs -mkdir -p /user/spark/benchmark
 	hdfs dfs -put -f ../benchmark-bdb/data//text-deflate/1node/rankings /user/spark/benchmark/rankings
@@ -86,6 +100,8 @@ bdb-prepare-data-1node:
 	hdfs dfs -cp /user/spark/benchmark/rankings /user/spark/benchmark/scratch
 
 bdb-prepare-data-tiny:
+	hdfs dfs -rm -R -f /user/hive
+	$(DOCKER_EXEC) rm -rf metastore_db
 	hdfs dfs -rm -r -f /user/spark/benchmark
 	hdfs dfs -mkdir -p /user/spark/benchmark
 	hdfs dfs -put -f ../benchmark-bdb/data//text/tiny/rankings /user/spark/benchmark/rankings
@@ -118,18 +134,47 @@ bdb-prepare-sql-1node: start
 		--aws-key-id=foo \
 		--aws-key=bar
 
+bdb-prepare-sql-5node: start
+	../benchmark-bdb/benchmark/runner/prepare-benchmark.sh \
+		--spark \
+		--skip-s3-import \
+		--skip-uploads \
+		--file-format=text \
+		--file-format=text-deflate \
+		--scale-factor=5 \
+		--spark-host=`cat build/ip` \
+		--spark-identity-file=`pwd`/build/id_rsa \
+		--aws-key-id=foo \
+		--aws-key=bar
+
 bdb-run-q1a: start
 	../benchmark-bdb/benchmark/runner/run-query.sh \
 		--spark \
 		--spark-hadoop \
-		--num-trials 10 \
+		--num-trials 1 \
 		--spark-host=`cat build/ip` \
 		--spark-identity-file=`pwd`/build/id_rsa \
 		--query-num=1a
-bdb-perf-q1a: start
+
+PERFDIR = ~/perf-workdir
+
+bdb-perf-q1a-cached: start
 	mkdir -p perf
-	perf record -F 9999 -ag --  docker exec -it spark-cam14 bash -c \
-	"spark-sql -e \"set mapred.reduce.tasks=150; DROP TABLE result_cached; CREATE TABLE result_cached AS SELECT pageURL, pageRank FROM rankings_cached WHERE pageRank > 1000\";"
+	perf record -F 9999 -ag -o $(PERFDIR)/perf.data --  docker exec -it spark-cam14 bash -c \
+	"cd /root/ && spark-sql -e \"set mapred.reduce.tasks=150; DROP TABLE result_cached; CREATE TABLE result_cached AS SELECT pageURL, pageRank FROM rankings_cached WHERE pageRank > 1000\";"
+
+#mkdir -p $(PERFDIR)
+#sudo perf record -F 9999 -ag -o $(PERFDIR)/perf.data --  docker exec -it spark-cam14 bash -c \
+#"cd /root/ && spark-sql -e \"set mapred.reduce.tasks=150; DROP TABLE result_cached; CREATE TABLE result_cached AS SELECT pageURL, pageRank FROM rankings WHERE pageRank > 1000\";"
+
+bdb-perf-q1a: start
+	sudo ../profiler/profiler.sh q1a -- docker exec -it spark-cam14 bash -c \
+	"cd /root/ && spark-sql -e \"set mapred.reduce.tasks=150; DROP TABLE result_cached; CREATE TABLE result_cached AS SELECT pageURL, pageRank FROM rankings WHERE pageRank > 1000\";"
+
+perf-get:
+	docker exec spark-cam14 bash -c "tar -vc /tmp/perf-*.map" | tar -vx -C $(PERFDIR) --strip-components=1
+	docker exec hadoop_master-cam14 bash -c "tar -vc /tmp/perf-*.map" | tar -vx -C $(PERFDIR) --strip-components=1
+
 
 bdb-run-q1b: start
 	../benchmark-bdb/benchmark/runner/run-query.sh \
