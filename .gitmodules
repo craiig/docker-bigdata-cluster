@@ -1,0 +1,3 @@
+[submodule "perf-map-agent"]
+	path = perf-map-agent
+	url = https://github.com/craiig/perf-map-agent
