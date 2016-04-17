@@ -42,7 +42,7 @@ mkdir -p $OUTDIR
 
 #0 + 1 run perf with $(cmd)
 perf record -F $PERF_FREQ -ag -o $OUTDIR/perf.data -- bash -c "$CMD" \
-	| tee $(OUTDIR)/run.output
+	| tee $OUTDIR/run.output
 #perf record -F $PERF_FREQ -ag -o $OUTDIR/perf.data -- bash "$temp"
 if [ $? -eq 0 ]; then
     echo OK
@@ -63,5 +63,3 @@ containers=$(docker ps | awk '{if(NR>1) print $NF}')
 for d in $containers; do
 	docker exec $d bash -c "tar -c /tmp/perf-*.map" | tar -x -C $OUTDIR --strip-components=1 -k
 done
-chmod a+rw perf-*.map
-chown `whoami` perf-*.map
