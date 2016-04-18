@@ -30,9 +30,11 @@ ENV PATH $PATH:$JAVA_HOME/bin:/usr/local/hadoop/bin
 RUN rm /usr/bin/java && ln -s $JAVA_HOME/bin/java /usr/bin/java
 
 #support perf-map-agent to get symbols from java JIT
+# pulling from git because relative paths in dockerfile COPY don't work
 RUN yum groupinstall -y 'Development Tools'
 RUN yum install -y git cmake gcc-c++
 RUN cd ~/ && git clone --depth=1 https://github.com/craiig/perf-map-agent
+#COPY perf-map-agent /root/perf-map-agent #use this line when testing perf-map-agent before pushing to git
 RUN cd ~/perf-map-agent/ && JAVA_HOME=/usr/java/default/ cmake . && make
 ENV JAVA_TOOL_OPTIONS="-XX:+PreserveFramePointer -agentpath:/root/perf-map-agent/out/libperfmap.so"
 RUN echo "export JAVA_TOOL_OPTIONS=\"-XX:+PreserveFramePointer -agentpath:/root/perf-map-agent/out/libperfmap.so\"" >> ~/.bash_profile
@@ -64,11 +66,11 @@ RUN cp $HADOOP_PREFIX/etc/hadoop/*.xml $HADOOP_PREFIX/input
 
 # pseudo distributed
 ADD core-site.xml.template $HADOOP_PREFIX/etc/hadoop/core-site.xml.template
+ADD yarn-site.xml.template $HADOOP_PREFIX/etc/hadoop/yarn-site.xml.template
 RUN sed s/HOSTNAME/localhost/ /usr/local/hadoop/etc/hadoop/core-site.xml.template > /usr/local/hadoop/etc/hadoop/core-site.xml
 ADD hdfs-site.xml $HADOOP_PREFIX/etc/hadoop/hdfs-site.xml
 
 ADD mapred-site.xml $HADOOP_PREFIX/etc/hadoop/mapred-site.xml
-ADD yarn-site.xml $HADOOP_PREFIX/etc/hadoop/yarn-site.xml
 
 # fixing the libhadoop.so like a boss
 RUN rm -rf /usr/local/hadoop/lib/native

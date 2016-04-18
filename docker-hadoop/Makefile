@@ -48,6 +48,7 @@ $(build): Dockerfile $(packages)
 $(cid_file): $(build) | $(HADOOP_DATA_DIR)
 	docker create \
 		--volume=$(HADOOP_DATA_DIR):/vol/hadoop-master \
+		--pid=host \
 		--name $(CONTAINER_NAME) $(IMAGE_NAME)
 	echo $(CONTAINER_NAME) > $@
 

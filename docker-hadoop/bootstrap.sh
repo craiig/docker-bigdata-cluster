@@ -13,6 +13,7 @@ cd $HADOOP_PREFIX/share/hadoop/common ; for cp in ${ACP//,/ }; do  echo == $cp; 
 #$IP = $(/sbin/ip route | awk '/src/ { print $9 }')
 IP=$(ifconfig eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}')
 sed s/HOSTNAME/$IP/ /usr/local/hadoop/etc/hadoop/core-site.xml.template > /usr/local/hadoop/etc/hadoop/core-site.xml
+sed s/HOSTNAME/$IP/ /usr/local/hadoop/etc/hadoop/yarn-site.xml.template > /usr/local/hadoop/etc/hadoop/yarn-site.xml
 
 # ensure that hdfs is formatted - needed for using external docker volumes
 # won't format hdfs if it is already formatted

@@ -1,5 +1,9 @@
 <configuration>
     <property>
+        <name>yarn.resourcemanager.address</name>
+        <value>HOSTNAME</value>
+    </property>
+    <property>
         <name>yarn.nodemanager.aux-services</name>
         <value>mapreduce_shuffle</value>
     </property>
