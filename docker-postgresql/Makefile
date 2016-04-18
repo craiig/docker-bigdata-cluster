@@ -34,6 +34,7 @@ $(cid_file): $(build)
 		--pid=host \
 	       	--name $(IMAGE_NAME)\
 		--net=host \
+		-v /mnt/scratch/cam14/postgres-storage/_data:/var/lib/postgresql/data \
 	       -e POSTGRES_PASSWORD=hellopostgres \
        	       $(CONTAINER_NAME)
 
