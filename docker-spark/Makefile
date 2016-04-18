@@ -109,39 +109,14 @@ bdb-prepare-data-tiny:
 	hdfs dfs -put -f ../benchmark-bdb/data//text/tiny/crawl /user/spark/benchmark/crawl
 	hdfs dfs -cp /user/spark/benchmark/rankings /user/spark/benchmark/scratch
 
-bdb-prepare-sql-tiny: start
+# we have one prepare sql rule because it's the same regardless of the data set size used
+bdb-prepare-sql: start
 	../benchmark-bdb/benchmark/runner/prepare-benchmark.sh \
 		--spark \
 		--skip-s3-import \
 		--skip-uploads \
 		--file-format=text \
 		--scale-factor=1 \
-		--spark-host=`cat build/ip` \
-		--spark-identity-file=`pwd`/build/id_rsa \
-		--aws-key-id=foo \
-		--aws-key=bar
-
-bdb-prepare-sql-1node: start
-	../benchmark-bdb/benchmark/runner/prepare-benchmark.sh \
-		--spark \
-		--skip-s3-import \
-		--skip-uploads \
-		--file-format=text \
-		--file-format=text-deflate \
-		--scale-factor=1 \
-		--spark-host=`cat build/ip` \
-		--spark-identity-file=`pwd`/build/id_rsa \
-		--aws-key-id=foo \
-		--aws-key=bar
-
-bdb-prepare-sql-5node: start
-	../benchmark-bdb/benchmark/runner/prepare-benchmark.sh \
-		--spark \
-		--skip-s3-import \
-		--skip-uploads \
-		--file-format=text \
-		--file-format=text-deflate \
-		--scale-factor=5 \
 		--spark-host=`cat build/ip` \
 		--spark-identity-file=`pwd`/build/id_rsa \
 		--aws-key-id=foo \
@@ -156,25 +131,14 @@ bdb-run-q1a: start
 		--spark-identity-file=`pwd`/build/id_rsa \
 		--query-num=1a
 
-PERFDIR = ~/perf-workdir
-
 bdb-perf-q1a-cached: start
 	mkdir -p perf
 	perf record -F 9999 -ag -o $(PERFDIR)/perf.data --  docker exec -it spark-cam14 bash -c \
 	"cd /root/ && spark-sql -e \"set mapred.reduce.tasks=150; DROP TABLE result_cached; CREATE TABLE result_cached AS SELECT pageURL, pageRank FROM rankings_cached WHERE pageRank > 1000\";"
 
-#mkdir -p $(PERFDIR)
-#sudo perf record -F 9999 -ag -o $(PERFDIR)/perf.data --  docker exec -it spark-cam14 bash -c \
-#"cd /root/ && spark-sql -e \"set mapred.reduce.tasks=150; DROP TABLE result_cached; CREATE TABLE result_cached AS SELECT pageURL, pageRank FROM rankings WHERE pageRank > 1000\";"
-
 bdb-perf-q1a: start
 	sudo ../profiler/profiler.sh q1a -- docker exec -it spark-cam14 bash -c \
 	"cd /root/ && spark-sql -e \"set mapred.reduce.tasks=150; DROP TABLE result_cached; CREATE TABLE result_cached AS SELECT pageURL, pageRank FROM rankings WHERE pageRank > 1000\";"
-
-perf-get:
-	docker exec spark-cam14 bash -c "tar -vc /tmp/perf-*.map" | tar -vx -C $(PERFDIR) --strip-components=1
-	docker exec hadoop_master-cam14 bash -c "tar -vc /tmp/perf-*.map" | tar -vx -C $(PERFDIR) --strip-components=1
-
 
 bdb-run-q1b: start
 	../benchmark-bdb/benchmark/runner/run-query.sh \
@@ -184,6 +148,29 @@ bdb-run-q1b: start
 		--spark-host=`cat build/ip` \
 		--spark-identity-file=`pwd`/build/id_rsa \
 		--query-num=1b
+
+bdb-run-all: start
+	eval $$( ../benchmark-bdb/benchmark/runner/run_all_queries.sh \
+		../benchmark-bdb/benchmark/runner/run-query.sh \
+		--spark \
+		--spark-hadoop \
+		--num-trials 1 \
+		--spark-host=`cat build/ip` \
+		--spark-identity-file=`pwd`/build/id_rsa \
+		--query-num=QUERYNUM "2>&1" "|" tee results/results-QUERYNUM\; )
+
+bdb-perf-all: start
+	eval $$( ../benchmark-bdb/benchmark/runner/run_all_queries.sh \
+		sudo ../profiler/profiler.sh QUERYNUM -- \
+		sudo -u cam14 ../benchmark-bdb/benchmark/runner/run-query.sh \
+		--spark \
+		--spark-hadoop \
+		--spark-no-cache \
+		--num-trials 1 \
+		--spark-host=`cat build/ip` \
+		--spark-identity-file=`pwd`/build/id_rsa \
+		--query-num=QUERYNUM "2>&1" \; )
+#--query-num=QUERYNUM "2>&1" "|" tee results/results-QUERYNUM\; )
 
 #this rule has a problem because it takes a different cwd
 #than via ssh - so  don't use it, it's kept here as reference
