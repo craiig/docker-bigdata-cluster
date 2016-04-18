@@ -24,13 +24,14 @@ flamegraph := ~/nfs/bigdata/FlameGraph/flamegraph.pl
 perf2sql := ~/nfs/bigdata/profiler/perf2sql.py
 
 perf.data: | perf.data.gz
-	gzip -dc $^ > perf.data
+	gzip -dc perf.data.gz > perf.data
 
 perf_script.out.gz: | perf.data
 	perf script -f comm,pid,tid,cpu,time,event,ip,sym,dso,trace | \
 	gzip -9 > $@
 
-sql_benchmark_id: | perf_script.out.gz
+# | perf_script.out.gz
+sql_benchmark_id: 
 	gzip -dc perf_script.out.gz | \
 	$(perf2sql) --name $(basename `pwd`) --dbpass hellopostgres > $@
 
@@ -39,19 +40,19 @@ sql_benchmark_id: | perf_script.out.gz
 		#gzip -9 > $@
 
 perf_pidtid.svg: | perf_script.out.gz
-	gzip -dc $^ | \
+	gzip -dc perf_script.out.gz | \
 	$(stackcollapse) --stdin --pid --tid | \
 		~/nfs/bigdata/FlameGraph/flamegraph.pl \
 		--color=java > $@
 
 perf_pid.svg: | perf_script.out.gz
-	gzip -dc $^ | \
+	gzip -dc perf_script.out.gz | \
 	$(stackcollapse) --stdin --pid | \
 		~/nfs/bigdata/FlameGraph/flamegraph.pl \
 		--color=java > $@
 
 perf.svg: | perf_script.out.gz
-	gzip -dc $^ | \
+	gzip -dc perf_script.out.gz | \
 	$(stackcollapse) --stdin | \
 		~/nfs/bigdata/FlameGraph/flamegraph.pl \
 		--color=java > $@

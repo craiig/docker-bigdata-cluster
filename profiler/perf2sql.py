@@ -111,7 +111,7 @@ for l in sys.stdin:
             (pc, func, mod) = m.groups()
 
             #for now store pc's as text
-            # pc = int(pc, 16)
+            pc = int(pc, 16)
             stack_addresses.append(pc)
             stack_names.append(func)
             stack_mods.append(mod)

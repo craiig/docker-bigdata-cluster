@@ -18,7 +18,7 @@ CREATE TABLE "public"."perf_stack_trace" (
 	    "tid" integer,
 	    "process_name" text,
 	    "stack_time_ns" bigint, /* this should be able to hold years of runtime */
-	    "stack_addresses" text[],
+	    "stack_addresses" numeric[],
 	    "stack_names" text[],
 	    "stack_mods" text[]
 );
