@@ -71,13 +71,19 @@ stack_mods = list()
 cur_state = "start"
 
 #2 read perf script from stdin
-for l in sys.stdin:
-    if cur_state == "start":
+if cur_state == "start":
+    for l in sys.stdin:
         m = re.match("^# ========", l)
         if m:
             cur_state = "header"
+            break
+else:
+    print >> sys.stderr, "state trans failed"
+    raise Exception("state trans failed")
 
-    elif cur_state == "header":
+
+if cur_state == "header":
+    for l in sys.stdin:
         m = re.match("^# cmdline : (.*)", l)
         if m:
             cmdline =  m.group(1)
@@ -97,16 +103,27 @@ for l in sys.stdin:
                         "perfinfo":perfinfo
                     })
             benchmark_id = cur.fetchone()[0]
+            break
+else:
+    print >> sys.stderr, "state trans failed"
+    raise Exception("state trans failed")
 
-    elif cur_state == "stacks":
-        m = re.match("^(\S+\s*?\S*?)\s+(\d+)\/(\d+).*?(\d+)\.(\d+)", l)
+re_match_pid = re.compile("^(\S+\s*?\S*?)\s+(\d+)\/(\d+).*?(\d+)\.(\d+)")
+re_match_stack = re.compile("^\s*(\w+)\s*(.+) \((\S*)\)")
+re_match_end = re.compile("^$")
+
+if cur_state == "stacks":
+    for l in sys.stdin:
+        # m = re.match("^(\S+\s*?\S*?)\s+(\d+)\/(\d+).*?(\d+)\.(\d+)", l)
+        m = re_match_pid.match(l)
         if m:
             process_name = m.group(1)
             pid = m.group(2)
             tid = m.group(3)
             stack_time_ns = int(m.group(4)) * 1e9 + int(m.group(5))
 
-        m = re.match("^\s*(\w+)\s*(.+) \((\S*)\)", l)
+        # m = re.match("^\s*(\w+)\s*(.+) \((\S*)\)", l)
+        m = re_match_stack.match(l)
         if m:
             (pc, func, mod) = m.groups()
 
@@ -116,7 +133,8 @@ for l in sys.stdin:
             stack_names.append(func)
             stack_mods.append(mod)
 
-        m = re.match("^$", l)
+        # m = re.match("^$", l)
+        m = re_match_end.match(l)
         if m:
             #end of stack
             stackframe ={
@@ -131,6 +149,7 @@ for l in sys.stdin:
             "stack_mods": stack_mods, 
             }
             # pprint(stackframe)
+            # print cur.mogrify(stack_upload_query, stackframe)
             # sys.exit()
             cur.execute(stack_upload_query, stackframe)
             pid = None
@@ -141,9 +160,12 @@ for l in sys.stdin:
             stack_addresses = list()
             stack_names = list()
             stack_mods = list()
+else:
+    print >> sys.stderr, "state trans failed"
+    raise Exception("state trans failed")
 
 # conn.rollback()
-cur.execute("CLUSTER perf_stack_trace") #recluster data
+#cur.execute("CLUSTER perf_stack_trace") #recluster data
 conn.commit()
 
 if opts.emit_benchmark_id:
