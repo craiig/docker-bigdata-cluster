@@ -51,27 +51,12 @@ int insert_benchmark(
 	return bid;
 }
 
-std::queue<std::stringstream*> queries;
-const int max_query_buffer = 1000;
-
-void flush_stack_queries(
-		#ifdef USE_PIPELINE
-		pqxx::pipeline& pipe,
-		#endif
-		pqxx::work& trans){
-		std::stringstream* e;
-		while(!queries.empty()){
-			e = queries.front();
-			//cout << (*e).str() << endl;
-			#ifdef USE_PIPELINE
-			pipe.insert((*e).str());
-			#else
-			trans.exec(*e);
-			#endif
-			delete e;
-			queries.pop();
-		}
-}
+//some rate limiting so we don't exhaust memory
+//todo: tune this better, this gave 21minutes
+const int max_query_buffer = 10000; //how many queries to submit to the pipeline
+const int pipe_drain_num = 1000; //how much do we drain the pipeline by
+const int pipeline_retain = 1000; //how much does libpqxx retain before submitting to the backend
+int num_active_queries = 0; //count outstanding queries
 
 void insert_stack(
 #ifdef USE_PIPELINE
@@ -89,9 +74,11 @@ void insert_stack(
 		const vector<string>& stack_names,
 		const vector<string>& stack_mods
 	){
-	std::stringstream* q = new std::stringstream();
-
-	(*q) << "insert into perf_stack_trace"
+	//std::stringstream* q = new std::stringstream();
+	//(*q)
+	std::stringstream q;
+	q	
+		<< "insert into perf_stack_trace"
 		"(benchmark_id, pid, tid,"
 		"process_name, stack_time_ns, stack_addresses,"
 		"stack_names, stack_mods)"
@@ -102,14 +89,14 @@ void insert_stack(
 			<< "'{" << pqxx::separated_list(",", stack_names) << "}',"
 			<< "'{" << pqxx::separated_list(",", stack_mods) << "}'"
 		<< ");";
-	//cout << q.str() << endl;
-	queries.push(q);
-	if(queries.size() >= max_query_buffer){
-		flush_stack_queries(
-				#ifdef USE_PIPELINE
-				pipe,
-				#endif
-				trans);
+	pipe.insert(q.str());
+
+	num_active_queries++;
+	if(num_active_queries > max_query_buffer){
+		for(int i=0; i<pipe_drain_num; i++){
+			pipe.retrieve();
+			num_active_queries--;
+		}
 	}
 }
 
@@ -249,6 +236,7 @@ int main(int argc, char* argv[]){
 
 	//setup a pipeline for the bulk inserts
 	pqxx::pipeline pipe(trans, "perf_stack_traces");
+	pipe.retain( pipeline_retain ); //hold a moderate amount of queries
 	/* one difference between c++ regex is that match() has to match the 
 	 * entire word, whereas python it just has to match the start
 	 * */
@@ -345,12 +333,7 @@ int main(int argc, char* argv[]){
 		return 1;
 	}
 
-	//finish results
-	flush_stack_queries(
-			#ifdef USE_PIPELINE
-			pipe,
-			#endif
-			trans);
+	//finish result by flushing the pipe completely
 	pipe.complete();
 
 	//commit or don't
