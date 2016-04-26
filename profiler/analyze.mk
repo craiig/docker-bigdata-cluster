@@ -21,7 +21,8 @@ cptmp:
 
 stackcollapse := ~/nfs/bigdata/FlameGraph/stackcollapse-perf.pl
 flamegraph := ~/nfs/bigdata/FlameGraph/flamegraph.pl
-perf2sql := ~/nfs/bigdata/profiler/perf2sql.py
+#perf2sql := ~/nfs/bigdata/profiler/perf2sql/perf2sql.py
+perf2sql := ~/nfs/bigdata/profiler/perf2sql/perf2sql
 
 perf.data: | perf.data.gz
 	gzip -dc perf.data.gz > perf.data
