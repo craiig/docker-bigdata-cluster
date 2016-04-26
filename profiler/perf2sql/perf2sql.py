@@ -1,10 +1,20 @@
 #!/usr/bin/env python
 
-import psycopg2
+# import psycopg2
+# support pypy
+try:
+    import psycopg2
+except ImportError:
+    # Fall back to psycopg2cffi
+    from psycopg2cffi import compat
+    compat.register()
+    import psycopg2
+
 import argparse
 from pprint import pprint
 import sys
 import re
+import time
 
 # 1. create new benchmark entry based on argument to --name
 # 2. upload stack information based on information read via stdin
@@ -20,6 +30,7 @@ parser.add_argument("--dbhost", default="localhost")
 parser.add_argument("--dbname", default="postgres")
 parser.add_argument("--dbuser", default="postgres")
 parser.add_argument("--dbpass", required=True)
+parser.add_argument("--dryrun", action='store_true', default=False)
 parser.add_argument("--emit_benchmark_id", default=True)
 opts = parser.parse_args()
 
@@ -31,6 +42,17 @@ returning benchmark_id;
 """
 
 stack_upload_query = """
+insert into perf_stack_trace
+(benchmark_id, pid, tid,
+process_name, stack_time_ns, stack_addresses,
+stack_names, stack_mods)
+VALUES
+(%(benchmark_id)s, %(pid)s, %(tid)s,
+%(process_name)s, %(stack_time_ns)s, %(stack_addresses)s,
+%(stack_names)s, %(stack_mods)s)
+"""
+
+buffer_upload_query = """
 insert into perf_stack_trace
 (benchmark_id, pid, tid,
 process_name, stack_time_ns, stack_addresses,
@@ -70,6 +92,29 @@ stack_mods = list()
 #track some state for a lame parser
 cur_state = "start"
 
+#performance measurement
+perf_start_time = None
+perf_stop_time = None
+perf_avg_list = list()
+perf_samples = 1
+perf_record_count = 0
+
+def perf_start():
+    global perf_start_time
+    perf_start_time = time.clock()
+
+def perf_stop():
+    global perf_stop_time
+    global perf_start_time
+    perf_stop_time = time.clock()
+    # print "start: %s stop: %s took: %s" % ( perf_start, perf_stop, perf_stop-perf_start)
+    diff = perf_stop_time - perf_start_time
+    print diff
+    perf_avg_list.append(diff)
+    if (len(perf_avg_list) >= perf_samples):
+        print "%s average: %s" % (perf_samples, sum(perf_avg_list)/len(perf_avg_list))
+        del perf_avg_list[:]
+
 #2 read perf script from stdin
 if cur_state == "start":
     for l in sys.stdin:
@@ -81,6 +126,10 @@ else:
     print >> sys.stderr, "state trans failed"
     raise Exception("state trans failed")
 
+
+#buffer for holding tuples we haven't uploaded yet
+buffer_max = 10000 # number of records to hold
+buffer = list()
 
 if cur_state == "header":
     for l in sys.stdin:
@@ -103,6 +152,7 @@ if cur_state == "header":
                         "perfinfo":perfinfo
                     })
             benchmark_id = cur.fetchone()[0]
+            print >> sys.stderr, "uploading scripts under bechmark_id %s" % (benchmark_id)
             break
 else:
     print >> sys.stderr, "state trans failed"
@@ -112,6 +162,7 @@ re_match_pid = re.compile("^(\S+\s*?\S*?)\s+(\d+)\/(\d+).*?(\d+)\.(\d+)")
 re_match_stack = re.compile("^\s*(\w+)\s*(.+) \((\S*)\)")
 re_match_end = re.compile("^$")
 
+perf_start()
 if cur_state == "stacks":
     for l in sys.stdin:
         # m = re.match("^(\S+\s*?\S*?)\s+(\d+)\/(\d+).*?(\d+)\.(\d+)", l)
@@ -148,10 +199,19 @@ if cur_state == "stacks":
             "stack_names": stack_names, 
             "stack_mods": stack_mods, 
             }
+            perf_record_count = perf_record_count + 1
             # pprint(stackframe)
             # print cur.mogrify(stack_upload_query, stackframe)
             # sys.exit()
-            cur.execute(stack_upload_query, stackframe)
+            # if opts.dryrun == False:
+            buffer.append(stackframe)
+            if len(buffer) >= buffer_max:
+                cur.executemany(buffer_upload_query, buffer)
+                print >>sys.stderr, "uploaded"
+                del buffer[:]
+                perf_stop()
+                perf_start()
+
             pid = None
             tid = None
             process_name = None
@@ -164,9 +224,19 @@ else:
     print >> sys.stderr, "state trans failed"
     raise Exception("state trans failed")
 
-# conn.rollback()
+#finish up final batch
+if len(buffer) >= 0:
+    cur.executemany(buffer_upload_query, buffer)
+    print >>sys.stderr, "uploaded final"
+    del buffer[:]
+
+if opts.dryrun:
+    print >> sys.stderr, "rolling transaction back due to dry run"
+    print >> sys.stderr, "records read: %s" % (perf_record_count)
+    conn.rollback()
+else:
+    conn.commit()
 #cur.execute("CLUSTER perf_stack_trace") #recluster data
-conn.commit()
 
 if opts.emit_benchmark_id:
     print benchmark_id
