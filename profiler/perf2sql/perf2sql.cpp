@@ -52,7 +52,7 @@ int insert_benchmark(
 }
 
 std::queue<std::stringstream*> queries;
-const int max_query_buffer = 10000;
+const int max_query_buffer = 1000;
 
 void flush_stack_queries(
 		#ifdef USE_PIPELINE
