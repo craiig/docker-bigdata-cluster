@@ -14,16 +14,17 @@ ZOOKEEPER_IP = $(shell cat $(ZOOKEEPER_IP_FILE))
 build := build/image
 build: $(build)
 #TODO this build requires the IPs be known at build time, this should be re-written to use a volume
-$(build): Dockerfile $(HADOOP_MASTER_HOSTNAME_FILE) $(ZOOKEEPER_IP_FILE)
+$(build): Dockerfile | $(HADOOP_MASTER_HOSTNAME_FILE) $(ZOOKEEPER_IP_FILE)
 	mkdir -p $(OUT)
 	cp accumulo-conf/accumulo-env.sh $(OUT)/
 	sed s/HADOOPMASTERIP/${HADOOP_IP}/g accumulo-conf/accumulo-site.xml | sed s/ZOOKEEPERHOSTIP/${ZOOKEEPER_IP}/g > $(OUT)/accumulo-site.xml
 	mkdir -p build/
 	docker build -t $(IMAGE_NAME) .
+	touch $@
 
 cid_file := build/container_id
 
-$(cid_file): $(build) $(HADOOP_CONFIG_DIR)/core-site.xml
+$(cid_file): $(build) 
 	docker create							\
 		--volumes-from zookeeper-$(shell whoami)		\
 		--volumes-from hadoop_master-$(shell whoami)		\
