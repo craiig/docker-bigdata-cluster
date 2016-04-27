@@ -1,0 +1,13 @@
+
+
+To use this, you need:
+ * Java 1.8, preferrably Oracle.
+ * Linux perf
+ * perf-map-agent https://github.com/craiig/perf-map-agent
+
+Set your environment variables as follows. Make sure *all* java invocations can pick this up
+ * JAVA_TOOL_OPTIONS="-XX:+PreserveFramePointer -agentpath:/root/perf-map-agent/out/libperfmap.so"
+
+Now edit the profiler.sh script and it run it as root:
+ * sudo ./profiler.sh $(name) -- $(cmd)
+
