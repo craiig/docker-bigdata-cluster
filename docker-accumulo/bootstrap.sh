@@ -3,7 +3,7 @@
 : ${ACCUMULO_HOME:=/usr/local/accumulo}
 
 
-printf 'myinstance\nmypassw\nmypassw\n' | $ACCUMULO_HOME/bin/accumulo init
+#printf 'default\naccumulo\naccumulo\n' | $ACCUMULO_HOME/bin/accumulo init
 $ACCUMULO_HOME/bin/start-all.sh
 
 if [[ $1 == "-d" ]]; then

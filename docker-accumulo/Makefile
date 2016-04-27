@@ -48,6 +48,7 @@ clean_container:
 
 clean_image:
 	-docker rmi $(IMAGE_NAME)
+	-rm $(build)
 
 shell: start
 	docker exec -it $(CONTAINER_NAME) bash

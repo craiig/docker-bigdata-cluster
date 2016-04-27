@@ -15,11 +15,12 @@ RUN rm /usr/bin/java && ln -s $JAVA_HOME/bin/java /usr/bin/java
 ENV ACCUMULO_HOME /usr/local/accumulo
 ENV ZOOKEEPER_HOME /usr/local/zookeeper
 ENV HADOOP_PREFIX /usr/local/hadoop
+ENV PATH $PATH:/usr/local/accumulo/bin:/usr/local/hadoop/bin:/usr/local/zookeeper/bin
 
-
+#setup configuration
 RUN yes | cp -f $ACCUMULO_HOME/conf/examples/512MB/standalone/* $ACCUMULO_HOME/conf
-
 ADD out/* $ACCUMULO_HOME/conf/
+
 
 
 ADD bootstrap.sh /etc/bootstrap.sh
