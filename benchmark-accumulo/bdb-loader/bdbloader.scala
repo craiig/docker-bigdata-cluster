@@ -29,30 +29,31 @@ object BDBLoader {
     val username = args(2)
     val password = args(3)
 
-    //todo: test for rankings before uploading
-    val instance = new ZooKeeperInstance(instanceName, zookeepers)    
-    val connector = instance.getConnector("root", new PasswordToken("accumulo"))
-
     val rankings = sc.textFile("hdfs:///user/spark/benchmark/rankings", 2);
-    //val numLines = logData.count();
-    //val numAs = logData.filter(line => line.contains("a")).count()
-    //val numBs = logData.filter(line => line.contains("b")).count()
-    //println("Lines with a: %s, Lines with b: %s".format(numAs, numBs))
+    //val numLines = rankings.count();
     //println("Total lines: %s".format(numLines))
 
-    rankings.map( (line:String) => {
-      val batchWriter = connector.createBatchWriter("rankings", new BatchWriterConfig());
-      val s:Array[String] = line.split(",");
-      val url = s(0);
-      val ranking = s(1);
-      val duration = s(2);
+    val uploaded = rankings.foreachPartition( (partitionOfRecords) => {
+      val instance = new ZooKeeperInstance(instanceName, zookeepers)    
+      val connector = instance.getConnector("root", new PasswordToken("accumulo"))
 
-      val m = new Mutation(url);
-      m.put("pagerank", "ranking", ranking);
-      m.put("pagerank", "duration", duration);
-      batchWriter.addMutation(m);
+      val batchWriter = connector.createBatchWriter("rankings", new BatchWriterConfig());
+      partitionOfRecords.foreach( (line:String) => {
+        val s:Array[String] = line.split(",");
+        val url = s(0);
+        val ranking = s(1);
+        val duration = s(2);
+
+        val m = new Mutation(url);
+        m.put("pagerank", "ranking", ranking);
+        m.put("pagerank", "duration", duration);
+        batchWriter.addMutation(m);
+        url;
+      });
       batchWriter.close();
-      url;
     });
+    println("num partitions: %s".format(rankings.partitions.size));
+    //val numUploaded = uploaded.count();
+    //println("Records uploaded: %s".format(numUploaded));
   }
 }
