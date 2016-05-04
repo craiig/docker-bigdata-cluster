@@ -7,6 +7,7 @@ scalaVersion := "2.11.8"
 libraryDependencies += "org.apache.spark" %% "spark-core" % "1.6.1"
 libraryDependencies += "org.apache.accumulo" % "accumulo-core" % "1.7.1"
 libraryDependencies += "org.apache.zookeeper" % "zookeeper" % "3.4.6"
+libraryDependencies += "org.apache.hadoop" % "hadoop-client" % "2.7.1"
 
 mergeStrategy in assembly <<= (mergeStrategy in assembly) {
   (old) => {

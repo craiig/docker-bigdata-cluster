@@ -9,7 +9,15 @@ $(TARGET): ./bdbloader.scala ./bdbloader.sbt
 clean:
 	sbt clean
 
-run: $(TARGET)
+run-loader: $(TARGET)
 	spark-submit --class BDBLoader $(TARGET) accumulo 172.17.0.3 root accumulo
-	 #spark-submit --class BDBLoader target/scala-2.11/bdbloader_2.11-1.0.jar
+
+run-reader: $(TARGET)
+	spark-submit --class BDBReader $(TARGET) accumulo 172.17.0.3 root accumulo
+
+perf-loader:
+	sudo ../../profiler/profiler.sh accumulo-rankings-load -- make perf-loader2
+
+perf-loader2:
+	sudo -u cam14 bash -c "source ../../local-hadoop/source.sh && ../../local-hadoop/spark/bin/spark-submit --class BDBLoader $(TARGET) accumulo 172.17.0.3 root accumulo"
 
