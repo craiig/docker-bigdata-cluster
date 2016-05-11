@@ -7,9 +7,24 @@ hostname := build/hostname
 
 include ../Makefile.options
 
+#build has some dependencies on external files which we download once
+#so it's easy to rebuild a container without download times
+packages_dir := build/packages
+packages := java.rpm 
+packages := $(packages:%=$(packages_dir)/%)
+.PRECIOUS: $(packages)
+
+$(packages_dir):
+	mkdir -p $(packages_dir)
+
+$(packages_dir)/java.rpm: | $(packages_dir)
+	curl -L \
+		'http://download.oracle.com/otn-pub/java/jdk/8u77-b03/jdk-8u77-linux-x64.rpm'\
+		-H 'Cookie: oraclelicense=accept-securebackup-cookie' > $@
+
 build := build/image
 build: $(build)
-$(build): Dockerfile
+$(build): Dockerfile $(packages)
 	mkdir -p build/
 	docker build -t $(IMAGE_NAME) .
 
@@ -19,6 +34,7 @@ $(cid_file): $(build)
 	docker create					\
 		-v /usr/local/zookeeper			\
 		--privileged=true			\
+		--pid=host \
 		--name $(IMAGE_NAME) $(CONTAINER_NAME)
 	echo $(CONTAINER_NAME) > $@
 

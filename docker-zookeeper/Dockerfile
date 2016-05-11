@@ -5,9 +5,20 @@ RUN ln -s /usr/local/zookeeper-3.4.6 /usr/local/zookeeper
 
 ADD ./conf /usr/local/zookeeper/conf
 
-RUN curl -LO 'http://download.oracle.com/otn-pub/java/jdk/7u71-b14/jdk-7u71-linux-x64.rpm' -H 'Cookie: oraclelicense=accept-securebackup-cookie'
-RUN rpm -i jdk-7u71-linux-x64.rpm
-RUN rm jdk-7u71-linux-x64.rpm
+# oracle java
+COPY build/packages/java.rpm .
+RUN rpm -i java.rpm
+RUN rm java.rpm
+
+#support perf-map-agent to get symbols from java JIT
+# pulling from git because relative paths in dockerfile COPY don't work
+RUN yum groupinstall -y 'Development Tools'
+RUN yum install -y git cmake gcc-c++
+RUN cd ~/ && git clone --depth=1 https://github.com/craiig/perf-map-agent
+#COPY perf-map-agent /root/perf-map-agent #use this line when testing perf-map-agent before pushing to git
+RUN cd ~/perf-map-agent/ && JAVA_HOME=/usr/java/default/ cmake . && make
+ENV JAVA_TOOL_OPTIONS="-XX:+PreserveFramePointer -agentpath:/root/perf-map-agent/out/libperfmap.so"
+RUN echo "export JAVA_TOOL_OPTIONS=\"-XX:+PreserveFramePointer -agentpath:/root/perf-map-agent/out/libperfmap.so\"" >> ~/.bash_profile
 
 ENV JAVA_HOME /usr/java/default
 ENV PATH $PATH:$JAVA_HOME/bin
