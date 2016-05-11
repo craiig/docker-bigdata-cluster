@@ -22,3 +22,14 @@ clean:
 	make -C docker-hadoop clean
 	make -C ./hadoop-config-gen clean
 	make -C docker-spark clean
+
+
+start-accmulo:
+	make -C docker-hadoop start
+	make -C docker-zookeeper start
+	make -C docker-accumulo start
+
+stop-accumulo:
+	make -C docker-zookeeper stop
+	make -C docker-accumulo stop
+	echo "NOTE: you will need to stop hadoop manually"
