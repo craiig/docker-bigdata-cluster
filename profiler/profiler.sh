@@ -61,5 +61,6 @@ gzip -9 $OUTDIR/perf.data
 #containers=$(docker ps -q)
 containers=$(docker ps | awk '{if(NR>1) print $NF}')
 for d in $containers; do
+	echo Retrieving from $d
 	docker exec $d bash -c "tar -c /tmp/perf-*.map" | tar -x -C $OUTDIR --strip-components=1 -k
 done

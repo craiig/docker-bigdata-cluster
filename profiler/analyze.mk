@@ -1,6 +1,8 @@
 
 
-all: cptmp sql_benchmark_id perf_pidtid.svg perf_pid.svg perf.svg
+all: sql flamegraphs
+sql: sql_benchmark_id
+flamegraphs: cptmp perf.svg perf_pid.svg perf_pidtid.svg 
 
 clean:
 	-rm perf_script.out.tar.gz
@@ -27,12 +29,16 @@ perf2sql := ~/nfs/bigdata/profiler/perf2sql/perf2sql
 perf.data: | perf.data.gz
 	gzip -dc perf.data.gz > perf.data
 
+whoami:=$(shell whoami)
+#some extra effort is required to get around being able to read symbols from all the priviledged places
 perf_script.out.gz: | perf.data
-	perf script -f comm,pid,tid,cpu,time,event,ip,sym,dso,trace | \
+	sudo chown root perf.data
+	sudo perf script -f comm,pid,tid,cpu,time,event,ip,sym,dso,trace | \
 	gzip -9 > $@
+	sudo chown $(whoami) perf.data
 
 # | perf_script.out.gz
-sql_benchmark_id: 
+sql_benchmark_id: cptmp
 	gzip -dc perf_script.out.gz | \
 	$(perf2sql) --name $(basename `pwd`) --dbpass hellopostgres > $@
 
