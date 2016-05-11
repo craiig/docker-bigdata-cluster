@@ -81,6 +81,13 @@ clean_image:
 shell: start
 	docker exec -it $(CONTAINER_NAME) bash
 
+#iptables hacks
+expose-yarn:
+	sudo iptables -t nat -A  DOCKER -p tcp --dport 8088 -j DNAT --to-destination 172.17.0.2:8088
+	sudo iptables -t nat -A  DOCKER -p tcp --dport 8042 -j DNAT --to-destination 172.17.0.2:8042
+delete-expose-yarn:
+	sudo iptables -t nat -D DOCKER 1
+
 
 #** interactive commands for running a one off
 # don't use these  if you don't know the difference between run and exec
