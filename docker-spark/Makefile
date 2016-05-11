@@ -39,7 +39,7 @@ $(cid_file): $(build)
 		--volumes-from hadoop_master-$(shell whoami) \
 		--privileged=true \
 		--pid=host \
-	       	--name $(IMAGE_NAME) $(CONTAINER_NAME)
+		--name $(IMAGE_NAME) $(CONTAINER_NAME)
 	echo $(CONTAINER_NAME) > $@
 	docker cp $(CONTAINER_NAME):/root/.ssh/id_rsa build/id_rsa
 
