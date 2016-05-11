@@ -1,12 +1,27 @@
 FROM centos
+# install dev tools
+RUN yum clean all; \
+    rpm --rebuilddb; \
+    yum install -y net-tools which; \
+	yum groupinstall -y "Development Tools"
 
 RUN curl http://apache.parentingamerica.com/accumulo/1.7.1/accumulo-1.7.1-bin.tar.gz | tar -xz -C /usr/local/
 
 RUN cd /usr/local && ln -sf accumulo-1.7.1 accumulo
 
-RUN curl -LO 'http://download.oracle.com/otn-pub/java/jdk/7u71-b14/jdk-7u71-linux-x64.rpm' -H 'Cookie: oraclelicense=accept-securebackup-cookie'
-RUN rpm -i jdk-7u71-linux-x64.rpm
-RUN rm jdk-7u71-linux-x64.rpm
+# oracle java
+COPY build/packages/java.rpm .
+RUN rpm -i java.rpm
+RUN rm java.rpm
+
+#support perf-map-agent to get symbols from java JIT
+# pulling from git because relative paths in dockerfile COPY don't work
+RUN yum install -y git cmake gcc-c++
+RUN cd ~/ && git clone --depth=1 https://github.com/craiig/perf-map-agent
+#COPY perf-map-agent /root/perf-map-agent #use this line when testing perf-map-agent before pushing to git
+RUN cd ~/perf-map-agent/ && JAVA_HOME=/usr/java/default/ cmake . && make
+ENV JAVA_TOOL_OPTIONS="-XX:+PreserveFramePointer -agentpath:/root/perf-map-agent/out/libperfmap.so"
+RUN echo "export JAVA_TOOL_OPTIONS=\"-XX:+PreserveFramePointer -agentpath:/root/perf-map-agent/out/libperfmap.so\"" >> ~/.bash_profile
 
 ENV JAVA_HOME /usr/java/default
 ENV PATH $PATH:$JAVA_HOME/bin
@@ -18,14 +33,14 @@ ENV HADOOP_PREFIX /usr/local/hadoop
 ENV PATH $PATH:/usr/local/accumulo/bin:/usr/local/hadoop/bin:/usr/local/zookeeper/bin
 
 #setup configuration
-RUN yes | cp -f $ACCUMULO_HOME/conf/examples/512MB/standalone/* $ACCUMULO_HOME/conf
+ADD accumulo-conf/ $ACCUMULO_HOME/conf/
 ADD out/* $ACCUMULO_HOME/conf/
-
-
 
 ADD bootstrap.sh /etc/bootstrap.sh
 RUN chown root:root /etc/bootstrap.sh
 RUN chmod 700 /etc/bootstrap.sh
+
+RUN $ACCUMULO_HOME/bin/build_native_library.sh
 
 CMD ["/etc/bootstrap.sh", "-d"]
 
