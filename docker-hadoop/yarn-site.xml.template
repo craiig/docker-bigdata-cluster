@@ -20,7 +20,7 @@
 	<property><name>
 yarn.nodemanager.resource.memory-mb
 	</name><value>
-24576
+26624
 	</value></property>
 
 	<property>
