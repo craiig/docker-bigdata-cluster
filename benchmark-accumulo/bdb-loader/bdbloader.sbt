@@ -9,6 +9,8 @@ libraryDependencies += "org.apache.accumulo" % "accumulo-core" % "1.7.1"
 libraryDependencies += "org.apache.zookeeper" % "zookeeper" % "3.4.6"
 libraryDependencies += "org.apache.hadoop" % "hadoop-client" % "2.7.1"
 
+unmanagedJars in Compile += file("../util/target/scala-2.11/util_2.11-1.0.jar")
+
 mergeStrategy in assembly <<= (mergeStrategy in assembly) {
   (old) => {
     case PathList("META-INF", xs @ _*) => MergeStrategy.discard

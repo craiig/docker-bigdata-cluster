@@ -8,5 +8,7 @@ object PerfUtils {
       //mem += v._2;
     } }
     //println("Total: " + mem + " bytes");
+    
+    //todo: add memory stats for Java runtime here as well to get overview
   }
 }

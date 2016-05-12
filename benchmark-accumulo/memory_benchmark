@@ -1,0 +1,14 @@
+val ardd = new AccumuloRDD("root", "accumulo", "rankings", "accumulo", "172.17.0.3");
+ardd.getColumn("pagerank", "ranking")
+val r = ardd.makeRDD(sc);
+val mapped = r.map(x => (x._1.toString(), x._2.toString()))
+PerfUtils.getFreeMemory(sc);
+mapped.count
+PerfUtils.getFreeMemory(sc);
+mapped.persist
+mapped.count
+PerfUtils.getFreeMemory(sc);
+
+import org.apache.spark.storage.StorageLevel
+mapped.persist(StorageLevel.MEMORY_AND_DISK)
+mapped.persist(StorageLevel.OFF_HEAP)
