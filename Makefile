@@ -10,7 +10,7 @@ start:
 	#start hadoop master
 	make -C docker-hadoop start
 	#generate a config (docker container needs to be running)
-	make -C ./hadoop-config-gen clean all install
+	make -C ./hadoop-config-gen clean all
 	make -C ./docker-spark start
 
 stop:

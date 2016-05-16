@@ -23,6 +23,7 @@ clean:
 $(OUT)/%: templates/%.template $(HADOOP_MASTER_HOSTNAME_FILE)
 	sed s/{{MASTER}}/${HADOOP_MASTER_HOSTNAME}/g $< > $@
 
-install: $(generated) $(HADOOP_CONFIG_DIR)
-	rsync -rav static/* $(HADOOP_CONFIG_DIR)
-	cp $(OUT)/* $(HADOOP_CONFIG_DIR)
+#install commented out because local copy here is fine for now
+#install: $(generated) $(HADOOP_CONFIG_DIR)
+#	#rsync -rav static/* $(HADOOP_CONFIG_DIR)
+#	#cp $(OUT)/* $(HADOOP_CONFIG_DIR)
