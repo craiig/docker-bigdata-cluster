@@ -7,9 +7,11 @@ dry :=
 
 all: tiny 1node
 
+#tiny is about ~4mb compressed
 tiny:
 	aws s3 sync $(dry) --exclude "*" --include "*tiny*" s3://big-data-benchmark/pavlo/ ./
 
+#1node is ~13gb with text-deflate
 1node:
 	aws s3 sync $(dry) --exclude "*" --include "*1node*" s3://big-data-benchmark/pavlo/text-deflate ./text-deflate
 #	aws s3 sync $(dry) --exclude "*" --include "*1node*" s3://big-data-benchmark/pavlo/text ./text
