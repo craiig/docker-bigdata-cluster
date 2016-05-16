@@ -25,15 +25,15 @@ packages := $(packages:%=$(packages_dir)/%)
 $(packages_dir):
 	mkdir -p $(packages_dir)
 
-$(packages_dir)/java.rpm: $(packages_dir)
+$(packages_dir)/java.rpm: | $(packages_dir)
 	curl -L \
 		'http://download.oracle.com/otn-pub/java/jdk/8u77-b03/jdk-8u77-linux-x64.rpm'\
 	       	-H 'Cookie: oraclelicense=accept-securebackup-cookie' > $@
 
-$(packages_dir)/hadoop-native-64-2.7.1.tgz: $(packages_dir)
+$(packages_dir)/hadoop-native-64-2.7.1.tgz: | $(packages_dir)
 	cd $(packages_dir) && curl -LO https://github.com/sequenceiq/docker-hadoop-build/releases/download/v2.7.1/hadoop-native-64-2.7.1.tgz
 
-$(packages_dir)/hadoop-2.7.1.tar.gz: $(packages_dir)
+$(packages_dir)/hadoop-2.7.1.tar.gz: | $(packages_dir)
 	cd $(packages_dir) && curl -LO http://mirror.its.dal.ca/apache/hadoop/common/hadoop-2.7.1/hadoop-2.7.1.tar.gz
 
 
