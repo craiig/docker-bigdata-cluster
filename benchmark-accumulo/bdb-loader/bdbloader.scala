@@ -41,15 +41,15 @@ object BDBLoader {
       //to.deleteRows("rankings", null, null);
       //delete and recreate so we can build splits
       to.delete("rankings");
-      to.create("rankings");
-      val splits = new java.util.TreeSet[Text]();
-      var i = 0;
-      for( i <- 0 to 255 ){
-        val bytes = Array[Byte](i.toByte);
-        splits.add(new Text(bytes));
-      }
-      to.addSplits("rankings", splits);
     }
+    to.create("rankings");
+    val splits = new java.util.TreeSet[Text]();
+    var i = 0;
+    for( i <- 0 to 255 ){
+      val bytes = Array[Byte](i.toByte);
+      splits.add(new Text(bytes));
+    }
+    to.addSplits("rankings", splits);
 
     val rankings = sc.textFile("hdfs:///user/spark/benchmark/rankings");
       //val numLines = rankings.count();
