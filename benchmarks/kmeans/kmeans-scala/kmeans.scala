@@ -10,7 +10,7 @@ object benchKmeans {
     val sc   = new SparkContext(conf)
 
     // Load and parse the data
-    val data       =  sc.textFile("kmeans_data.txt")
+    val data       = sc.textFile("../../data/amazon_reviews/reviews_books_first_1000.json")
     val parsedData =  data.map(s => Vectors.dense(s.split(' ').map(_.toDouble))).cache()
 
     // Cluster the data into two classes using KMeans

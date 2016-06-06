@@ -29,17 +29,18 @@ $(TARGET): ./kmeans.scala ./kmeans.sbt
 clean:
 	sbt clean
 
-../../data/amazon_reviews/reviews_books_first_1000.json: 
+../../data/amazon_reviews/reviews_books_first_1000.json:
 	make -C ../../data/amazon_reviews/ all
+	cp ../../data/amazon_reviews/reviews_books_first_1000.json ./
 
-run-kmeans: ../../data/amazon_reviews/reviews_books_first_1000.json $(TARGET) 
+run-kmeans: ../../data/amazon_reviews/reviews_books_first_1000.json $(TARGET)
 ifdef LOCAL
 	rm -rf myModelPath
 else
 	# Remove files that were left over from previous executions
 	hdfs dfs -rm -r -f /user/root/myModelPath/data
 	hdfs dfs -rm -r -f /user/root/myModelPath/metadata
-	hdfs dfs -put -f kmeans_data.txt /user/root/data/mllib/
+	hdfs dfs -put -f reviews_books_first_1000.json /user/root/
 endif
 	$(SPARK_SUBMIT) --class benchKmeans $(TARGET) accumulo 172.17.0.3 root accumulo
 
