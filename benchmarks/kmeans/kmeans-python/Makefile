@@ -22,6 +22,7 @@ setup_virtualenv:
 	# TODO: setting up the environment probably needs to be put somewhere else
 	sudo apt-get install python-dev
 	sudo apt-get install python-virtualenv
+	virtualenv venv
 	(bash -c "source venv/bin/activate")
 	pip install -r requirements.txt
 
