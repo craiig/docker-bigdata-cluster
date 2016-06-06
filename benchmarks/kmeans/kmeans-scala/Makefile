@@ -1,37 +1,8 @@
-TARGET:=./target/scala-2.11/kmeans-assembly-1.0.jar
-
-
-ifeq ($(LOCAL),1)
-SPARK_SUBMIT_ARGS :=
-PROFILE_NAME := accumulo-rankings-local
-export LOCAL
-$(warning export local)
-else
-SPARK_SUBMIT_ARGS := --deploy-mode=cluster --master yarn --num-executors 10 --executor-memory=1g
-# SPARK_SUBMIT_ARGS_LOCAL := --master local[4]
-PROFILE_NAME := accumulo-rankings-cluster
-endif
-
-ifdef LOCAL
-# override the local environment while make is running:
-export HADOOP_CONF_DIR=""
-SPARK_SUBMIT_ARGS := --master local[$(LOCAL)]
-endif
-
-SPARK_SUBMIT := spark-submit $(SPARK_SUBMIT_ARGS)
-# SPARK_SUBMIT_LOCAL := spark-submit $(SPARK_SUBMIT_ARGS_LOCAL)
-
-all: $(TARGET)
-$(TARGET): ./kmeans.scala ./kmeans.sbt
-	sbt assembly
-	#sbt package
-
-clean:
-	sbt clean
+include ../../Makefile.options
 
 ../../data/amazon_reviews/reviews_books_first_1000.json:
 	make -C ../../data/amazon_reviews/ all
-	cp ../../data/amazon_reviews/reviews_books_first_1000.json ./
+	ln -s ../../data/amazon_reviews/reviews_books_first_1000.json
 
 run-kmeans: ../../data/amazon_reviews/reviews_books_first_1000.json $(TARGET)
 ifdef LOCAL
