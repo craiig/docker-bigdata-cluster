@@ -1,0 +1,5 @@
+#this file should contain any variables that should be set for launch benchmarks on the cluster
+#including
+#1. spark-submit parameters for logging
+#2. configurations for running on miga/octavia/another system
+#3. sourcing of any paths
