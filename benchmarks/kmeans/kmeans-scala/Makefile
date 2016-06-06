@@ -29,7 +29,10 @@ $(TARGET): ./kmeans.scala ./kmeans.sbt
 clean:
 	sbt clean
 
-run-kmeans: $(TARGET)
+../../data/amazon_reviews/reviews_books_first_1000.json: 
+	make -C ../../data/amazon_reviews/ all
+
+run-kmeans: ../../data/amazon_reviews/reviews_books_first_1000.json $(TARGET) 
 ifdef LOCAL
 	rm -rf myModelPath
 else
