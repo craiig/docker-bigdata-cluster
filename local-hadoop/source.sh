@@ -17,7 +17,7 @@ export YARN_CONF_DIR=$HADOOP_PREFIX/etc/hadoop
 #optional java instrumenation
 export JAVA_HOME="/usr/java/jdk1.8.0_77/"
 export JAVA_TOOL_OPTIONS=""
-export JAVA_TOOL_OPTIONS="-XX:+PreserveFramePointer -agentpath:$DIR/../perf-map-agent/out/libperfmap.so"
+#export JAVA_TOOL_OPTIONS="-XX:+PreserveFramePointer -agentpath:$DIR/../perf-map-agent/out/libperfmap.so"
 #export JAVA_TOOL_OPTIONS="-XX:+PreserveFramePointer -agentpath:/root/perf-map-agent/out/libperfmap.so -agentlib:hprof"
 #export JAVA_TOOL_OPTIONS="-XX:+PreserveFramePointer -agentlib:hprof=heap=sites"
 #export JAVA_TOOL_OPTIONS="-agentlib:hprof=heap=sites"
