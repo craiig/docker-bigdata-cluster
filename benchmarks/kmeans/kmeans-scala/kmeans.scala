@@ -11,7 +11,7 @@ object benchKmeans {
 
     // Load and parse the data
     val data       = sc.textFile("reviews_books_first_1000.json")
-    val parsedData =  data.map(s => Vectors.dense(s.split(' ').map(_.toDouble))).cache()
+    val parsedData = data.map(s => Vectors.dense(s.split(' ').map(_.toDouble))).cache()
 
     // Cluster the data into two classes using KMeans
     val numClusters   = 2

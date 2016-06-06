@@ -4,7 +4,6 @@
 #2. configurations for running on miga/octavia/another system
 #3. sourcing of any paths
 
-TARGET:=./target/scala-2.11/kmeans-assembly-1.0.jar
 
 
 ifeq ($(LOCAL),1)
@@ -27,10 +26,3 @@ endif
 SPARK_SUBMIT := spark-submit $(SPARK_SUBMIT_ARGS)
 # SPARK_SUBMIT_LOCAL := spark-submit $(SPARK_SUBMIT_ARGS_LOCAL)
 
-all: $(TARGET)
-$(TARGET): ./kmeans.scala ./kmeans.sbt
-	sbt assembly
-	#sbt package
-
-clean:
-	sbt clean

@@ -1,5 +1,15 @@
 include ../../Makefile.options
 
+TARGET:=./target/scala-2.11/kmeans-assembly-1.0.jar
+
+all: $(TARGET)
+$(TARGET): ./kmeans.scala ./kmeans.sbt
+	sbt assembly
+	#sbt package
+
+clean:
+	sbt clean
+
 ../../data/amazon_reviews/reviews_books_first_1000.json:
 	make -C ../../data/amazon_reviews/ all
 	ln -s ../../data/amazon_reviews/reviews_books_first_1000.json
