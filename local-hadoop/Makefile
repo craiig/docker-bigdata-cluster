@@ -2,7 +2,12 @@
 
 include ../Makefile.options
 
-all: hadoop spark
+all: hadoop spark run_templates
+
+run_templates: spark/conf/spark-defaults.conf
+
+spark/conf/spark-defaults.conf: ./templates/spark-defaults.conf ../docker-hadoop/build/hostname
+	sed s/{{MASTER}}/${HADOOP_MASTER_HOSTNAME}/g $< > $@
 
 hadoop-2.7.1.tar.gz:
 	wget http://mirror.its.dal.ca/apache/hadoop/common/hadoop-2.7.1/hadoop-2.7.1.tar.gz 

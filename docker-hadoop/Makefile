@@ -59,6 +59,7 @@ start: $(cid_file)
 	#below only works with bridge networking
 	docker inspect --format '{{ .NetworkSettings.IPAddress }}' $(CONTAINER_NAME) > $(host_file)
 	#docker start -d $(NAME) /etc/bootstrap.sh -d > $@
+	bash -c "source ../local-hadoop/source.sh && hdfs dfs -mkdir -p /spark_event_logs"
 
 $(host_file): $(cid_file)
 	echo "is the container running? this won't work otherwise"
