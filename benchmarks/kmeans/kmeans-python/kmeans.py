@@ -1,7 +1,5 @@
 import sys
 from pyspark.mllib.clustering import KMeans, KMeansModel
-# from numpy import array
-from math import sqrt
 from pyspark import SparkContext
 import json
 
@@ -22,11 +20,7 @@ clusters = KMeans.train(parsedData, 2, maxIterations=10,
 
 
 # Evaluate clustering by computing Within Set Sum of Squared Errors
-def error(point):
-    center = clusters.centers[clusters.predict(point)]
-    return sqrt(sum([x**2 for x in (point - center)]))
-
-WSSSE = parsedData.map(lambda point: error(point)).reduce(lambda x, y: x + y)
+WSSSE = clusters.computeCost(parsedData)
 print("Within Set Sum of Squared Error = " + str(WSSSE))
 
 # Save and load model
