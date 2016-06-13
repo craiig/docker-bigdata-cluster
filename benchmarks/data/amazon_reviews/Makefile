@@ -9,3 +9,7 @@ reviews_books_first_1000.json:
 reviews_Books_5.json.gz: 
 	curl http://snap.stanford.edu/data/amazon/productGraph/categoryFiles/reviews_Books_5.json.gz >$@
 
+split_data/: reviews_Books_5.json.gz
+	mkdir -p split
+	curl $(books) | gunzip | split -b 100m - split/review_
+

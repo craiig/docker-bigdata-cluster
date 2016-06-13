@@ -12,7 +12,11 @@ object benchKmeans {
     val sc         = new SparkContext(conf)
     val sqlContext = new org.apache.spark.sql.SQLContext(sc)
 
-    val json_file = "reviews_books_first_1000.json"
+    var json_file = "reviews_books_first_1000.json"
+    if(args.length == 2){
+      json_file = args(1);
+    }
+    println("Reading from file: " + json_file);
 
     // Create the DataFrame
     val df = sqlContext.read.json(json_file)
@@ -25,12 +29,15 @@ object benchKmeans {
 
     // Cluster the data into two classes using KMeans
     val numClusters   = 2
-    val numIterations = 20
-    val clusters      = KMeans.train(parsedData, numClusters, numIterations)
+    val numIterations = 10
+    val numRuns = 10
+    val initMode = "random"
+    val clusters      = KMeans.train(parsedData, numClusters, numIterations, numRuns, initMode)
 
     // Evaluate clustering by computing Within Set Sum of Squared Errors
     val WSSSE = clusters.computeCost(parsedData)
       println("Within Set Sum of Squared Errors = " + WSSSE)
+      clusters.clusterCenters.map(x => println(x))
 
     // Save and load model
     clusters.save(sc, "myModelPath")

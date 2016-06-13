@@ -1,18 +1,4 @@
-ifeq ($(LOCAL),1)
-SPARK_SUBMIT_ARGS :=
-export LOCAL
-$(warning export local)
-else
-SPARK_SUBMIT_ARGS := --deploy-mode=cluster --master yarn --num-executors 10 --executor-memory=1g
-endif
-
-ifdef LOCAL
-# override the local environment while make is running:
-export HADOOP_CONF_DIR=""
-SPARK_SUBMIT_ARGS := --master local[$(LOCAL)]
-endif
-
-SPARK_SUBMIT := spark-submit $(SPARK_SUBMIT_ARGS)
+include ../../Makefile.options
 
 setup_virtualenv:
 	# TODO: setting up the environment probably needs to be put somewhere else
@@ -26,6 +12,6 @@ ifdef LOCAL
 else
 	# Remove files that were left over from previous executions
 	hdfs dfs -rm -r -f /user/root/myModelPath/
-	hdfs dfs -put -f reviews_books_first_1000.json
+	hdfs dfs -put -f ../../data/amazon_reviews/reviews_books_first_1000.json /user/root/
 endif
 	$(SPARK_SUBMIT) kmeans.py reviews_books_first_1000.json

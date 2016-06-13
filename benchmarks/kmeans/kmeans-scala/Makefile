@@ -1,11 +1,12 @@
 include ../../Makefile.options
 
-TARGET:=./target/scala-2.11/kmeans-assembly-1.0.jar
+#TARGET:=./target/scala-2.11/kmeans-assembly-1.0.jar
+TARGET:=./target/scala-2.11/kmeans_2.11-1.0.jar
 
 all: $(TARGET)
 $(TARGET): ./kmeans.scala ./kmeans.sbt
-	sbt assembly
-	#sbt package
+	#sbt assembly
+	sbt package
 
 clean:
 	sbt clean
@@ -21,9 +22,9 @@ else
 	# Remove files that were left over from previous executions
 	hdfs dfs -rm -r -f /user/root/myModelPath/data
 	hdfs dfs -rm -r -f /user/root/myModelPath/metadata
-	hdfs dfs -put -f reviews_books_first_1000.json /user/root/
+	hdfs dfs -put -f ../../data/amazon_reviews/reviews_books_first_1000.json /user/root/
 endif
-	$(SPARK_SUBMIT) --class benchKmeans $(TARGET) accumulo 172.17.0.3 root accumulo
+	$(SPARK_SUBMIT) --class benchKmeans $(TARGET) /user/root/reviews_books_first_1000.json
 
 # run-kmeans-local: $(TARGET)
 # 	$(SPARK_SUBMIT_LOCAL) --class benchKmeans $(TARGET)
