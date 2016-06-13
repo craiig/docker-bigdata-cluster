@@ -27,6 +27,7 @@ build: $(build)
 $(build): Dockerfile $(packages)
 	mkdir -p build/
 	docker build -t $(IMAGE_NAME) .
+	echo $(IMAGE_NAME) > $(build)
 
 cid_file := build/container_id
 

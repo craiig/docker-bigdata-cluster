@@ -1,16 +1,12 @@
+include ../../Makefile.options
+include ../Makefile.options
 TARGET:=./target/scala-2.11/bdbloader-assembly-1.0.jar
 
-ifeq ($(LOCAL),1)
-SPARK_SUBMIT_ARGS := 
-PROFILE_NAME := accumulo-rankings-local
-export LOCAL
-$(warning export local)
-else
-SPARK_SUBMIT_ARGS := --deploy-mode=cluster --master yarn --num-executors 10 --executor-memory=1g
+ifeq ($(CLUSTER),1)
 PROFILE_NAME := accumulo-rankings-cluster
+else
+PROFILE_NAME := accumulo-rankings-local
 endif
-
-SPARK_SUBMIT := spark-submit $(SPARK_SUBMIT_ARGS)
 
 all: $(TARGET)
 $(TARGET): ./bdbloader.scala ./bdbloader.sbt

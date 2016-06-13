@@ -1,3 +1,8 @@
+# Keep sitewide configurations here for locations of various files like configs
+#
+ifndef ROOT_MAKEFILE_OPTIONS
+ROOT_MAKEFILE_OPTIONS = 1
+
 # HADOOP_CONFIG_DIR is a non-nfs mount where hadoop client config
 # can be stored.
 # docker volumes don't mount when pointed at nfs
@@ -6,7 +11,11 @@ CONFIGS_ROOT := $(shell readlink -f ~/docker-volumes)
 HADOOP_CONFIG_DIR := $(CONFIGS_ROOT)/hadoop-config
 HADOOP_DATA_DIR := $(CONFIGS_ROOT)/hadoop-master
 #for miga:
-# HADOOP_DATA_DIR := /mnt/scratch/cam14/hadoop-master
+ifeq ($(shell whoami), cam14)
+ifeq ($(shell hostname), miga)
+HADOOP_DATA_DIR := /mnt/scratch/cam14/hadoop-master
+endif
+endif
 
 #directory rules to make directories
 #$(HADOOP_DATA_DIR) $(HADOOP_CONFIG_DIR):
@@ -19,3 +28,5 @@ THISDIR := $(dir $(lastword $(MAKEFILE_LIST)))
 ROOT := $(shell readlink -f $(THISDIR))
 HADOOP_MASTER_HOSTNAME_FILE := $(THISDIR)/docker-hadoop/build/hostname
 HADOOP_MASTER_HOSTNAME := $(shell cat $(HADOOP_MASTER_HOSTNAME_FILE))
+
+endif

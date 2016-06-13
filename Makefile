@@ -24,7 +24,7 @@ clean:
 	make -C docker-spark clean
 
 
-start-accmulo:
+start-accumulo:
 	make -C docker-hadoop start
 	make -C docker-zookeeper start
 	make -C docker-accumulo start
