@@ -1,0 +1,7 @@
+hadoop*.tar.gz
+spark*.tgz
+jdk*.tar.gz
+hadoop/
+spark/
+java/
+shell-context*
