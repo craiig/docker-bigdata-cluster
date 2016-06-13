@@ -1,3 +1,4 @@
+import sys
 from pyspark.mllib.clustering import KMeans, KMeansModel
 # from numpy import array
 from math import sqrt
@@ -7,9 +8,13 @@ import json
 # Load and parse the data
 sc = SparkContext("local", "Python K-Means Amazon Reviews")
 
-data = sc.textFile('reviews_books_first_1000.json')
+# First arg must be the filename
+filename = sys.argv[1]
+data = sc.textFile(filename)
 parsedData = data.map(lambda line: json.loads(line)).\
-             map(lambda line: (line['overall'], len(line['reviewText'])))
+             map(lambda line: (line['overall'],
+                               len(line['reviewText']),
+                               line['unixReviewTime']))
 
 # Build the model (cluster the data)
 clusters = KMeans.train(parsedData, 2, maxIterations=10,

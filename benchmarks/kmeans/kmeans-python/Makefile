@@ -28,4 +28,4 @@ else
 	hdfs dfs -rm -r -f /user/root/myModelPath/
 	hdfs dfs -put -f reviews_books_first_1000.json
 endif
-	$(SPARK_SUBMIT) kmeans.py
+	$(SPARK_SUBMIT) kmeans.py reviews_books_first_1000.json
