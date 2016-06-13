@@ -4,25 +4,35 @@
 #2. configurations for running on miga/octavia/another system
 #3. sourcing of any paths
 
+#launch defaults
+# runs on the cluster in local client mode (this means it runs on the docker cluster, but you can see the output on your machine)
 
+SPARK_MODE ?= cluster-client
 
-ifeq ($(LOCAL),1)
-SPARK_SUBMIT_ARGS :=
-PROFILE_NAME := accumulo-rankings-local
-export LOCAL
-$(warning export local)
-else
-SPARK_SUBMIT_ARGS := --deploy-mode=cluster --master yarn --num-executors 10 --executor-memory=1g
-# SPARK_SUBMIT_ARGS_LOCAL := --master local[4]
-PROFILE_NAME := accumulo-rankings-cluster
+ifeq ($(SPARK_MODE), cluster-client)
+SPARK_SUBMIT_ARGS := --master yarn-client #shows informative output locally
+else ifeq($(SPARK_MODE), cluster-cluster
+SPARK_SUBMIT_ARGS := --master yarn-cluster #shows nothing of interest locally
+else ifeq($(SPARK_MODE), local)
+SPARK_SUBMIT_ARGS := --master local[*] #runs without cluster
 endif
 
-ifdef LOCAL
-# override the local environment while make is running:
-export HADOOP_CONF_DIR=""
-SPARK_SUBMIT_ARGS := --master local[$(LOCAL)]
+#machine specific configurations
+hostname := $(shell hostname)
+ifeq ($(hostname), miga)
+$(warning configuring for miga)
+SPARK_SUBMIT_ARGS += --num-executors 10 --executor-memory=2g \
+						 --driver-memory 1g
+else ifeq ($(hostname), octavia)
+$(warning configuring for octavia)
+SPARK_SUBMIT_ARGS += --executor-memory 2g --driver-memory 1g \
+						 --num-executors 2
+else 
+$(warning configuring for unknown host: $(hostname))
+SPARK_SUBMIT_ARGS += --executor-memory 2g --driver-memory 1g \
+						 --num-execuors 4
 endif
+
 
 SPARK_SUBMIT := spark-submit $(SPARK_SUBMIT_ARGS)
-# SPARK_SUBMIT_LOCAL := spark-submit $(SPARK_SUBMIT_ARGS_LOCAL)
 

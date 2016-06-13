@@ -38,3 +38,13 @@ java-install:
 java: jdk-8u77-linux-x64.tar.gz
 	mkdir -p $@
 	tar -vzxf $< -C $@ --strip-components=1
+
+-include ../benchmarks/Makefile.options
+-include ../spark-utils/sparkutils.mk
+spark-shell: all $(SPARK_UTILS_JAR)
+	mkdir -p context1
+	cd context1; spark-shell $(SPARK_SHELL_ARGS) --jars $(SPARK_UTILS_JAR)
+
+spark-shell2: all $(SPARK_UTILS_JAR)
+	mkdir -p context2
+	cd context2; spark-shell $(SPARK_SHELL_ARGS) --jars $(SPARK_UTILS_JAR)

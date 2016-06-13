@@ -1,20 +1,35 @@
-ifeq ($(LOCAL),1)
-SPARK_SHELL_ARGS := 
-export LOCAL
-$(warning export local)
+include ../../Makefile.options
+include ../Makefile.options
+TARGET:=./target/scala-2.11/bdbloader-assembly-1.0.jar
+
+ifeq ($(CLUSTER),1)
+PROFILE_NAME := accumulo-rankings-cluster
 else
-SPARK_SHELL_ARGS := --master yarn --executor-memory 2g --driver-memory 1g --num-executors 4
+PROFILE_NAME := accumulo-rankings-local
 endif
 
-#SPARK_SHELL_ARGS += --jars ../util/target/scala-2.11/util-assembly-1.0.jar
+all: $(TARGET)
+$(TARGET): ./bdbloader.scala ./bdbloader.sbt
+	sbt assembly 
+	#sbt package 
 
-# util/target/scala-2.11/util-assembly-1.0.jar
-shell:
-	#make -C util/
-	mkdir -p context1
-	cd context1; spark-shell $(SPARK_SHELL_ARGS)
+clean:
+	sbt clean
 
-shell2: util/target/scala-2.11/util-assembly-1.0.jar
-	make -C util/
-	mkdir -p context2
-	cd context2; spark-shell $(SPARK_SHELL_ARGS)
+run-loader: $(TARGET)
+	$(SPARK_SUBMIT) --class BDBLoader $(TARGET) accumulo 172.17.0.3 root accumulo
+
+perf-loader:
+	sudo ../../profiler/profiler.sh $(PROFILE_NAME)-load -- make perf-loader2
+
+perf-loader2:
+	sudo -u cam14 bash -c "source ../../local-hadoop/source.sh && ../../local-hadoop/spark/bin/spark-submit $(SPARK_SUBMIT_ARGS) --class BDBLoader $(TARGET) accumulo 172.17.0.3 root accumulo"
+
+run-reader: $(TARGET)
+	$(SPARK_SUBMIT) --class BDBReader $(TARGET) accumulo 172.17.0.3 root accumulo
+
+perf-reader:
+	sudo ../../profiler/profiler.sh $(PROFILE_NAME)-read -- make perf-reader2 LOCAL=$(LOCAL)
+
+perf-reader2:
+	sudo -u cam14 bash -c "source ../../local-hadoop/source.sh && ../../local-hadoop/spark/bin/spark-submit $(SPARK_SUBMIT_ARGS) --class BDBReader $(TARGET) accumulo 172.17.0.3 root accumulo"
