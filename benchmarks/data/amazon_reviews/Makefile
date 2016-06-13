@@ -11,5 +11,6 @@ reviews_Books_5.json.gz:
 
 split_data/: reviews_Books_5.json.gz
 	mkdir -p split
-	curl $(books) | gunzip | split -b 100m - split/review_
+	curl $(books) | gunzip | split -C 100m - split/review_
+	cd split/review_; gzip * 
 
