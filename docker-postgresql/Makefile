@@ -1,5 +1,7 @@
 all: start
 
+POSTGRES_STORAGE_DIR := /mnt/scratch/cam14/postgres-storage
+POSTGRES_STORAGE_DATA_DIR := $(POSTGRES_STORAGE_DIR)/_data
 IMAGE_NAME := postgres-$(shell whoami)
 CONTAINER_NAME := postgres-$(shell whoami)
 DOCKER_EXEC := docker exec $(CONTAINER_NAME)
@@ -34,7 +36,7 @@ $(cid_file): $(build)
 		--pid=host \
 	       	--name $(IMAGE_NAME)\
 		--net=host \
-		-v /mnt/scratch/cam14/postgres-storage/_data:/var/lib/postgresql/data \
+		-v $(POSTGRES_STORAGE_DATA_DIR):/var/lib/postgresql/data \
 	       -e POSTGRES_PASSWORD=hellopostgres \
        	       $(CONTAINER_NAME)
 
@@ -59,6 +61,9 @@ shell:
 
 psql:
 	docker exec -it $(CONTAINER_NAME) psql
+
+backup:
+	docker exec $(CONTAINER_NAME) pg_dump -d postgres -h localhost -U postgres -c -Z 9 > $(POSTGRES_STORAGE_DIR)/postgres-backup-`date +"%Y-%m-%d-%H%M%S"`.sql.gz
 
 #command that runs a test against the hadoop setup - should work
 test: start
