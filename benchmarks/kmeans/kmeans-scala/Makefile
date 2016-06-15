@@ -26,6 +26,14 @@ else
 endif
 	$(SPARK_SUBMIT) --class benchKmeans $(TARGET) /user/root/reviews_books_first_1000.json
 
+
+load-big-data: /mnt/scratch/benchmark_data/amazon_reviews/
+	hdfs dfs -mkdir -p /user/root/amazon_reviews/
+	hdfs dfs -put /mnt/scratch/benchmark_data/amazon_reviews/* /user/root/amazon_reviews/
+
+run-kmeans-big: $(TARGET)
+	$(SPARK_SUBMIT) --class benchKmeans $(TARGET) /user/root/amazon_reviews
+
 # run-kmeans-local: $(TARGET)
 # 	$(SPARK_SUBMIT_LOCAL) --class benchKmeans $(TARGET)
 

@@ -13,8 +13,8 @@ object benchKmeans {
     val sqlContext = new org.apache.spark.sql.SQLContext(sc)
 
     var json_file = "reviews_books_first_1000.json"
-    if(args.length == 2){
-      json_file = args(1);
+    if(args.length == 1){
+      json_file = args(0);
     }
     println("Reading from file: " + json_file);
 
@@ -40,7 +40,7 @@ object benchKmeans {
       clusters.clusterCenters.map(x => println(x))
 
     // Save and load model
-    clusters.save(sc, "myModelPath")
-    val sameModel = KMeansModel.load(sc, "myModelPath")
+    //clusters.save(sc, "myModelPath")
+    //val sameModel = KMeansModel.load(sc, "myModelPath")
   }
 }
