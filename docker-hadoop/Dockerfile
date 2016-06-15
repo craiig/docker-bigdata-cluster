@@ -1,23 +1,25 @@
 # Creates pseudo distributed hadoop 2.7.1
 #
 # docker build -t sequenceiq/hadoop .
-FROM sequenceiq/pam:centos-6.5
-MAINTAINER SequenceIQ
+#FROM sequenceiq/pam:centos-6.5
+FROM centos
 
 USER root
 
 # install dev tools
 RUN yum clean all; \
     rpm --rebuilddb; \
-    yum install -y curl which tar sudo openssh-server openssh-clients rsync bind-utils
+    yum install -y curl which tar sudo openssh-server openssh-clients rsync bind-utils net-tools
 # update libselinux. see https://github.com/sequenceiq/hadoop-docker/issues/14
 RUN yum update -y libselinux
 
 # passwordless ssh
 RUN ssh-keygen -q -N "" -t dsa -f /etc/ssh/ssh_host_dsa_key
 RUN ssh-keygen -q -N "" -t rsa -f /etc/ssh/ssh_host_rsa_key
-RUN ssh-keygen -q -N "" -t rsa -f /root/.ssh/id_rsa
-RUN cp /root/.ssh/id_rsa.pub /root/.ssh/authorized_keys
+RUN ssh-keygen -q -N "" -t dsa -f /root/.ssh/id_dsa
+RUN cp /root/.ssh/id_dsa.pub /root/.ssh/authorized_keys
+#root account is locked by default unless we do this
+RUN usermod -p '*' root
 
 # oracle java
 COPY build/packages/java.rpm .
@@ -103,6 +105,7 @@ RUN ls -la /usr/local/hadoop/etc/hadoop/*-env.sh
 RUN sed  -i "/^[^#]*UsePAM/ s/.*/#&/"  /etc/ssh/sshd_config
 RUN echo "UsePAM no" >> /etc/ssh/sshd_config
 RUN echo "Port 2122" >> /etc/ssh/sshd_config
+RUN echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 
 #don't think these are needed for any sane hdfs installation with volume-based dfs
 #namenode will get formatted by bootstrap

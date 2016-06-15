@@ -11,7 +11,7 @@ cd $HADOOP_PREFIX/share/hadoop/common ; for cp in ${ACP//,/ }; do  echo == $cp; 
 
 # altering the core-site configuration
 #$IP = $(/sbin/ip route | awk '/src/ { print $9 }')
-IP=$(ifconfig eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}')
+IP=$(ifconfig eth0 | grep 'inet ' | cut -d: -f2 | awk '{ print $2}')
 sed s/HOSTNAME/$IP/ /usr/local/hadoop/etc/hadoop/core-site.xml.template > /usr/local/hadoop/etc/hadoop/core-site.xml
 sed s/HOSTNAME/$IP/ /usr/local/hadoop/etc/hadoop/yarn-site.xml.template > /usr/local/hadoop/etc/hadoop/yarn-site.xml
 
@@ -19,7 +19,7 @@ sed s/HOSTNAME/$IP/ /usr/local/hadoop/etc/hadoop/yarn-site.xml.template > /usr/l
 # won't format hdfs if it is already formatted
 hdfs namenode -format -nonInteractive
 
-service sshd start
+/usr/sbin/sshd
 $HADOOP_PREFIX/sbin/start-dfs.sh
 $HADOOP_PREFIX/sbin/start-yarn.sh
 

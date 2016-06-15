@@ -58,6 +58,7 @@ start: $(cid_file)
 	#docker inspect --format '{{ .Config.Hostname }}' `cat build/container_id` > $(host_file)
 	#below only works with bridge networking
 	docker inspect --format '{{ .NetworkSettings.IPAddress }}' $(CONTAINER_NAME) > $(host_file)
+	make -C ../hadoop-config-gen
 	#docker start -d $(NAME) /etc/bootstrap.sh -d > $@
 	bash -c "source ../local-hadoop/source.sh && hdfs dfs -mkdir -p /spark_event_logs"
 
