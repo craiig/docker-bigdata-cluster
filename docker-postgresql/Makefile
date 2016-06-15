@@ -64,16 +64,3 @@ psql:
 
 backup:
 	docker exec $(CONTAINER_NAME) pg_dump -d postgres -h localhost -U postgres -c -Z 9 > $(POSTGRES_STORAGE_DIR)/postgres-backup-`date +"%Y-%m-%d-%H%M%S"`.sql.gz
-
-#command that runs a test against the hadoop setup - should work
-test: start
-	docker exec -it $(CONTAINER_NAME) \
-	sh -c 'cd /usr/local/spark && \
-	./bin/spark-submit --class org.apache.spark.examples.SparkPi \
-	    --master yarn \
-	    --deploy-mode cluster \
-	    --driver-memory 4g \
-	    --executor-memory 2g \
-	    --executor-cores 1 \
-	    lib/spark-examples*.jar \
-	    10'
