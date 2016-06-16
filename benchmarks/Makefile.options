@@ -11,9 +11,9 @@ SPARK_MODE ?= cluster-client
 
 ifeq ($(SPARK_MODE), cluster-client)
 SPARK_SUBMIT_ARGS := --master yarn-client #shows informative output locally
-else ifeq($(SPARK_MODE), cluster-cluster
+else ifeq ($(SPARK_MODE), cluster-cluster)
 SPARK_SUBMIT_ARGS := --master yarn-cluster #shows nothing of interest locally
-else ifeq($(SPARK_MODE), local)
+else ifeq ($(SPARK_MODE), local)
 SPARK_SUBMIT_ARGS := --master local[*] #runs without cluster
 endif
 
@@ -33,6 +33,4 @@ SPARK_SUBMIT_ARGS += --executor-memory 2g --driver-memory 1g \
 						 --num-execuors 4
 endif
 
-
 SPARK_SUBMIT := spark-submit $(SPARK_SUBMIT_ARGS)
-

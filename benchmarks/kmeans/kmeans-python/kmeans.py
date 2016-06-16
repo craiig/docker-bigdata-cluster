@@ -4,7 +4,7 @@ from pyspark import SparkContext
 import json
 
 # Load and parse the data
-sc = SparkContext("", "Python K-Means Amazon Reviews")
+sc = SparkContext("local", "Python K-Means Amazon Reviews")
 
 # First arg must be the filename
 filename = sys.argv[1]
@@ -22,8 +22,8 @@ clusters = KMeans.train(parsedData, 2, maxIterations=10,
 # Evaluate clustering by computing Within Set Sum of Squared Errors
 WSSSE = clusters.computeCost(parsedData)
 print("Within Set Sum of Squared Error = " + str(WSSSE))
-print clusters.centers
+# print clusters.centers
 
 # Save and load model
-clusters.save(sc, "myModelPath")
-sameModel = KMeansModel.load(sc, "myModelPath")
+# clusters.save(sc, "myModelPath")
+# sameModel = KMeansModel.load(sc, "myModelPath")
