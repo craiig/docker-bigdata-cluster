@@ -13,6 +13,7 @@ export HADOOP_YARN_HOME=$HADOOP_PREFIX
 #export HADOOP_CONF_DIR=~/docker-volumes/hadoop-config/
 export HADOOP_CONF_DIR=$DIR/../hadoop-config-gen/out
 export YARN_CONF_DIR=$HADOOP_PREFIX/etc/hadoop
+export SPARK_BIN=$DIR/spark
 
 #optional java instrumenation
 export JAVA_HOME="/usr/java/jdk1.8.0_77/"
