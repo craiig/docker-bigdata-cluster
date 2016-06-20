@@ -1,3 +1,6 @@
 [submodule "perf-map-agent"]
 	path = perf-map-agent
 	url = https://github.com/craiig/perf-map-agent
+[submodule "benchmarks/spark-perf/spark-perf"]
+	path = benchmarks/spark-perf/spark-perf
+	url = https://github.com/databricks/spark-perf.git
