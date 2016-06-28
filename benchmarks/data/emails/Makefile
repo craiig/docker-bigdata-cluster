@@ -8,4 +8,4 @@ CSDMC2010_SPAM.zip:
 
 # Unzip the dataset
 get_emails: CSDMC2010_SPAM.zip
-	unzip -j CSDMC2010_SPAM.zip "CSDMC2010_SPAM/CSDMC2010_SPAM/*" -x "CSDMC2010_SPAM/CSDMC2010_SPAM/readme.txt" -d emails
+	unzip CSDMC2010_SPAM.zip
