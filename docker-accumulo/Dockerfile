@@ -5,9 +5,9 @@ RUN yum clean all; \
     yum install -y net-tools which; \
 	yum groupinstall -y "Development Tools"
 
-RUN curl http://apache.parentingamerica.com/accumulo/1.7.1/accumulo-1.7.1-bin.tar.gz | tar -xz -C /usr/local/
+RUN curl http://apache.parentingamerica.com/accumulo/1.7.2/accumulo-1.7.2-bin.tar.gz | tar -xz -C /usr/local/
 
-RUN cd /usr/local && ln -sf accumulo-1.7.1 accumulo
+RUN cd /usr/local && ln -sf accumulo-1.7.2 accumulo
 
 # oracle java
 COPY build/packages/java.rpm .
