@@ -21,10 +21,10 @@ ENV JAVA_TOOL_OPTIONS="-XX:+PreserveFramePointer -agentpath:/root/perf-map-agent
 RUN echo "export JAVA_TOOL_OPTIONS=\"-XX:+PreserveFramePointer -agentpath:/root/perf-map-agent/out/libperfmap.so\"" >> ~/.bash_profile
 
 #RUN curl http://mirror.its.dal.ca/apache/spark/spark-1.6.0/spark-1.6.0-bin-hadoop2.6.tgz | tar -xz -C /usr/local
-COPY ./build/packages/spark-1.6.0-bin-hadoop2.6.tgz /usr/local/
-RUN tar -xzf /usr/local/spark-1.6.0-bin-hadoop2.6.tgz -C /usr/local
+COPY ./build/packages/spark-1.6.1-bin-hadoop2.6.tgz /usr/local/
+RUN tar -xzf /usr/local/spark-1.6.1-bin-hadoop2.6.tgz -C /usr/local
 
-RUN cd /usr/local && ln -sf spark-1.6.0-bin-hadoop2.6 spark
+RUN cd /usr/local && ln -sf spark-1.6.1-bin-hadoop2.6 spark
 
 COPY run_container.sh /usr/local/spark/
 
@@ -59,7 +59,7 @@ RUN ln -sf /usr/local/spark /root/spark
 ENV PATH $PATH:/usr/local/hadoop/bin:/usr/local/spark/bin
 RUN echo "export PATH=\$PATH:/usr/local/hadoop/bin:/usr/local/spark/bin" >> /root/.bash_profile
 #commented out for now to test the oracle jdk
-#RUN echo "export JAVA_HOME=/usr/lib/jvm/jre" >> /root/.bash_profile 
+#RUN echo "export JAVA_HOME=/usr/lib/jvm/jre" >> /root/.bash_profile
 #RUN mkdir -p /usr/java/ && ln -sf /usr/lib/jvm/jre /usr/java/default
 ENV HADOOP_CONF_DIR /usr/local/hadoop/etc/hadoop
 
