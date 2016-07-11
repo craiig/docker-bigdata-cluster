@@ -53,7 +53,7 @@ $(cid_file): $(build) | $(HADOOP_DATA_DIR)
 	echo $(CONTAINER_NAME) > $@
 
 #how to run:
-start: $(cid_file) 
+start: $(cid_file)
 	docker start $(CONTAINER_NAME)
 	#docker inspect --format '{{ .Config.Hostname }}' `cat build/container_id` > $(host_file)
 	#below only works with bridge networking
