@@ -11,7 +11,7 @@ include ../Makefile.options
 #so it's easy to rebuild a container without download times
 packages_dir := build/packages
 packages := java.rpm \
-	spark-1.6.0-bin-hadoop2.6.tgz
+	spark-1.6.1-bin-hadoop2.6.tgz
 packages := $(packages:%=$(packages_dir)/%)
 .PRECIOUS: $(packages)
 
@@ -23,8 +23,8 @@ $(packages_dir)/java.rpm: | $(packages_dir)
 		'http://download.oracle.com/otn-pub/java/jdk/8u77-b03/jdk-8u77-linux-x64.rpm'\
 		-H 'Cookie: oraclelicense=accept-securebackup-cookie' > $@
 
-$(packages_dir)/spark-1.6.0-bin-hadoop2.6.tgz: | $(packages_dir)
-	cd $(packages_dir) && wget http://mirror.its.dal.ca/apache/spark/spark-1.6.0/spark-1.6.0-bin-hadoop2.6.tgz
+$(packages_dir)/spark-1.6.1-bin-hadoop2.6.tgz: | $(packages_dir)
+	cd $(packages_dir) && wget http://mirror.its.dal.ca/apache/spark/spark-1.6.1/spark-1.6.1-bin-hadoop2.6.tgz
 
 build := build/image
 build: $(build)
@@ -34,7 +34,7 @@ $(build): Dockerfile $(packages)
 	touch $@
 
 cid_file := build/container_id
-$(cid_file): $(build) 
+$(cid_file): $(build)
 	docker create \
 		--volumes-from hadoop_master-$(shell whoami) \
 		--privileged=true \
@@ -57,7 +57,7 @@ clean_container:
 clean_image:
 	-docker rmi $(IMAGE_NAME) && rm $(build)
 
-shell: 
+shell:
 	docker exec -it $(CONTAINER_NAME) bash
 
 #command that runs a test against the hadoop setup - should work
@@ -73,7 +73,7 @@ test: start
 	    lib/spark-examples*.jar \
 	    10'
 
-ssh: 
+ssh:
 	ssh -o StrictHostKeyChecking=no \
 	       -o UserKnownHostsFile=/dev/null \
        	       -i build/id_rsa root@`cat build/ip`
