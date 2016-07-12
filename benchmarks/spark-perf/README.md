@@ -6,25 +6,13 @@
 $ make generate-config-local
 ```
 
-#### Generate a config.py file for Local Execution and Run
-
-```bash
-$ make run-local
-```
-
 #### Generate a config.py file for Cluster Execution
 
 ```bash
 $ make generate-config-cluster
 ```
 
-#### Generate a config.py file for Cluster Execution and Run
-
-```bash
-$ make run-cluster
-```
-
-#### Just Run with the current Config
+#### Run Using the Current Configuration
 
 ```bash
 $ make
