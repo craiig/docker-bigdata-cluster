@@ -14,6 +14,8 @@ export HADOOP_YARN_HOME=$HADOOP_PREFIX
 export HADOOP_CONF_DIR=$DIR/../hadoop-config-gen/out
 export YARN_CONF_DIR=$HADOOP_PREFIX/etc/hadoop
 export SPARK_BIN=$DIR/spark
+export SPARK_PERF_LOGS=$DIR/../benchmarks/spark-perf/logs
+export EXECUTOR_LOGS=$DIR/spark/work
 
 #optional java instrumenation
 export JAVA_HOME="/usr/java/jdk1.8.0_77/"
