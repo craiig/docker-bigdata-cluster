@@ -12,18 +12,18 @@ $ make generate-config-local
 $ make generate-config-cluster
 ```
 
-#### Run Using the Current Configuration
+#### Run Using the Current Configuration or Fetch Logs
+
+The following command is used to both execute the spark-perf benchmarks and
+fetch the logs.
+
+If neither the .source.sh file or .timestamp_file exist then the benchmarks will
+run. If both files exist then this command fetches the logs. If only one of them
+exists then it returns an eror.
 
 ```bash
 $ make
 ```
-
-Or:
-
-```bash
-$ make run
-```
-
 
 ## SSH Setup
 
