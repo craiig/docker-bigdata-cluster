@@ -10,9 +10,9 @@ host_file := build/hostname
 #provides HADOOP_MASTER_HOSTNAME_FILE
 include ../Makefile.options
 
-ZOOKEEPER_IP_FILE := ../docker-zookeeper/build/hostname
 HADOOP_IP = $(shell cat $(HADOOP_MASTER_HOSTNAME_FILE))
-ZOOKEEPER_IP = $(shell cat $(ZOOKEEPER_IP_FILE))
+# using docker linking instead of IP copying to make networking more reliable
+ZOOKEEPER_DOCKER_CONTAINER = zookeeper-$(shell whoami)
 
 #build has some dependencies on external files which we download once
 #so it's easy to rebuild a container without download times
@@ -36,7 +36,7 @@ build: $(build)
 $(build): Dockerfile | $(HADOOP_MASTER_HOSTNAME_FILE) $(ZOOKEEPER_IP_FILE) $(packages)
 	mkdir -p $(OUT)
 	cp accumulo-conf/accumulo-env.sh $(OUT)/
-	sed s/HADOOPMASTERIP/${HADOOP_IP}/g accumulo-conf/accumulo-site.xml | sed s/ZOOKEEPERHOSTIP/${ZOOKEEPER_IP}/g > $(OUT)/accumulo-site.xml
+	sed s/HADOOPMASTERIP/${HADOOP_IP}/g accumulo-conf/accumulo-site.xml | sed s/ZOOKEEPERHOSTIP/${ZOOKEEPER_DOCKER_CONTAINER}/g > $(OUT)/accumulo-site.xml
 	mkdir -p build/
 	docker build -t $(IMAGE_NAME) .
 	touch $@
@@ -49,6 +49,7 @@ $(cid_file): $(build)
 		-v $(HADOOP_CONFIG_DIR):/usr/local/hadoop/etc/hadoop \
 		--privileged=true 					\
 		--pid=host \
+		--link $(ZOOKEEPER_DOCKER_CONTAINER):$(ZOOKEEPER_DOCKER_CONTAINER) \
 		--name $(IMAGE_NAME) $(CONTAINER_NAME)
 	echo $(CONTAINER_NAME) > $@
 
@@ -60,7 +61,7 @@ stop:
 	-docker stop $(CONTAINER_NAME)
 
 clean: stop clean_container clean_image
-	hdfs dfs -rm -R /accumulo
+	-echo if you want to clean the data, run: hdfs dfs -rm -R /accumulo
 	-rm -r $(OUT)
 
 clean_container:
