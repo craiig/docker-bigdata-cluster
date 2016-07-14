@@ -16,20 +16,22 @@ $(TARGET): ./bdbloader.scala ./bdbloader.sbt
 clean:
 	sbt clean
 
+ZOOKEEPER := $(shell cat cat ../../docker-zookeeper/build/hostname)
+
 run-loader: $(TARGET)
-	$(SPARK_SUBMIT) --class BDBLoader $(TARGET) accumulo 172.17.0.3 root accumulo
+	$(SPARK_SUBMIT) --class BDBLoader $(TARGET) accumulo $(ZOOKEEPER) root accumulo
 
 perf-loader:
 	sudo ../../profiler/profiler.sh $(PROFILE_NAME)-load -- make perf-loader2
 
 perf-loader2:
-	sudo -u cam14 bash -c "source ../../local-hadoop/source.sh && ../../local-hadoop/spark/bin/spark-submit $(SPARK_SUBMIT_ARGS) --class BDBLoader $(TARGET) accumulo 172.17.0.3 root accumulo"
+	sudo -u cam14 bash -c "source ../../local-hadoop/source.sh && ../../local-hadoop/spark/bin/spark-submit $(SPARK_SUBMIT_ARGS) --class BDBLoader $(TARGET) accumulo $(ZOOKEEPER) root accumulo"
 
 run-reader: $(TARGET)
-	$(SPARK_SUBMIT) --class BDBReader $(TARGET) accumulo 172.17.0.3 root accumulo
+	$(SPARK_SUBMIT) --class BDBReader $(TARGET) accumulo $(ZOOKEEPER) root accumulo
 
 perf-reader:
 	sudo ../../profiler/profiler.sh $(PROFILE_NAME)-read -- make perf-reader2 LOCAL=$(LOCAL)
 
 perf-reader2:
-	sudo -u cam14 bash -c "source ../../local-hadoop/source.sh && ../../local-hadoop/spark/bin/spark-submit $(SPARK_SUBMIT_ARGS) --class BDBReader $(TARGET) accumulo 172.17.0.3 root accumulo"
+	sudo -u cam14 bash -c "source ../../local-hadoop/source.sh && ../../local-hadoop/spark/bin/spark-submit $(SPARK_SUBMIT_ARGS) --class BDBReader $(TARGET) accumulo $(ZOOKEEPER) root accumulo"
