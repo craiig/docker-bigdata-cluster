@@ -26,7 +26,7 @@ all:
 		./get-logs.sh --last_exec ; \
 		rm -rf .timestamp_file ; \
 		rm -rf .source.sh ; \
-		rm -rf .get-log-inprogress \
+		rm -rf .get-log-inprogress ; \
 	elif [ -f .source.sh -a -f .timestamp_file ] ; \
 	then \
 		echo "Fetching the Logs" ; \
