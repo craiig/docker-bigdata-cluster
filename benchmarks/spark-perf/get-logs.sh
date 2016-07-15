@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# TODO:
-# Copy HDFS files to /mnt/scratch/spark_event_logs_<exec date and time>
-
-
 mkdir -p "$SPARK_PERF_LOGS"
 cd "$SPARK_PERF_LOGS"/../ || exit
 
@@ -27,6 +23,7 @@ fi
 if [[ $1 == "--setup_exec_time" ]]; then
   execution_time=$(date +%F_%H:%M:%S)
   echo "export EXECUTION_TIME=$execution_time" > ../.source.sh
+  mkdir -p "$execution_time"
   exit 0;
 fi
 
@@ -44,8 +41,8 @@ fi
 
 # Get the timestamp that is in .source.sh
 source ../.source.sh
-mkdir -p "$EXECUTION_TIME"
-cd "$EXECUTION_TIME" || exit
+mkdir -p "$EXECUTION_TIME"/benchmarks
+cd "$EXECUTION_TIME"/benchmarks || exit
 
 
 hdfs dfs -get /spark_event_logs ./

@@ -1,6 +1,7 @@
 #!/bin/bash
 
 CONFIG_PATH=./spark-perf/config
+source .source.sh
 
 #local_config {{{
 function local_config {
@@ -34,7 +35,7 @@ function default_config {
 # run {{{
 function run {
   cd spark-perf
-  ./bin/run
+  ./bin/run > >(tee ../logs/$EXECUTION_TIME/sparkperf-output.out) 2> >(tee ../logs/$EXECUTION_TIME/sparkperf-output.err >&2)
 }
 
 #}}}
