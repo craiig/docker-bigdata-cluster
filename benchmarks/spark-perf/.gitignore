@@ -1,3 +1,4 @@
 .source.sh
 .timestamp_file
 logs
+frequency_of_events.txt
