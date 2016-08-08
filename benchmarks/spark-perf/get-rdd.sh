@@ -25,6 +25,7 @@ if [ -z "$2" ]; then
   hits_file="rdd_hits.txt"
   misses_file="rdd_misses.txt"
   evictions_file="rdd_evictions.txt"
+  size_file="rdd_size.txt"
   hits_ratio_file="rdd_hits_ratio.txt"
   misses_ratio_file="rdd_misses_ratio.txt"
 
@@ -47,20 +48,28 @@ if [ -z "$2" ]; then
   rm -rf "$destination"/"$evictions_file"
   touch "$destination"/"$evictions_file"
 
+  rm -rf "$destination"/"$size_file"
+  touch "$destination"/"$size_file"
+
   # Combine all app log files into one file called rdd_hits.txt
   grep 'found block rdd_[0-9]\{1,\}_[0-9]\{1,\}' * -Ri > "$destination"/"$hits_file"
   grep 'Partition rdd_[0-9]\{1,\}_[0-9]\{1,\} not found, computing it' * -Ri > "$destination"/"$misses_file"
   grep 'Dropping block' * -Ri > "$destination/$evictions_file"
+  grep 'stored as values in memory' * -Ri | grep 'rdd' > "$destination/$size_file"
 
   # Delete everything from beginning of line to first occurrence of "rdd"
   sed -i 's/^.*rdd/rdd/p' "$destination"/"$hits_file"
   sed -i 's/^.*rdd/rdd/p' "$destination"/"$misses_file"
   sed -i 's/^.*rdd/rdd/p' "$destination"/"$evictions_file"
+  sed -i 's/^.*rdd/rdd/p' "$destination"/"$size_file"
 
   # Delete from the end of the rdd tag (denoted by a space) to the eol
   sed -i "s@ .*@@g" "$destination"/"$hits_file"
   sed -i "s@ .*@@g" "$destination"/"$misses_file"
   sed -i "s@ .*@@g" "$destination"/"$evictions_file"
+  sed -i "s@ .*estimated size@  @g" "$destination"/"$size_file"
+  sed -i "s@, .*@@g" "$destination"/"$size_file"
+
 
 else
   echo "error"
