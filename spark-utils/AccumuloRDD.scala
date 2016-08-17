@@ -10,6 +10,11 @@ import org.apache.accumulo.core.util.{Pair => AccPair}
 import org.apache.hadoop.io.Text;
 import collection.JavaConversions._;
 
+import org.apache.spark.storage.RDDUniqueBlockId
+import org.apache.accumulo.core.client.mapreduce.RangeInputSplit
+import org.apache.hadoop.mapreduce.InputSplit
+
+
 class AccumuloRDD(username:String, password:String,
     table:String, instanceName:String, zookeepers:String){
 
@@ -39,10 +44,24 @@ class AccumuloRDD(username:String, password:String,
       //));
       InputFormatBase.fetchColumns( job, columns);
 
-      val rdd = sc.newAPIHadoopRDD(job.getConfiguration(), classOf[AccumuloInputFormat],
+      val rdd = sc.newAPIHadoopRDD(
+        job.getConfiguration(),
+        classOf[AccumuloInputFormat],
         classOf[org.apache.accumulo.core.data.Key],
-        classOf[org.apache.accumulo.core.data.Value])
-
+        classOf[org.apache.accumulo.core.data.Value],
+         Some((rdd:RDD[_], inputSplit:InputSplit) => {
+          assert (inputSplit.isInstanceOf[RangeInputSplit]) 
+            val is:RangeInputSplit = inputSplit.asInstanceOf[RangeInputSplit]
+            RDDUniqueBlockId(is.toString)
+            //potentialy narrow down the set of identifying attributes for acumulo
+            //val range = is.getRange
+            //val tablename
+            //tableid // /??
+            //instancename
+            //authenticationtoken
+            //fetchcolumns ??
+        }) 
+      )
       return rdd;
     }
 }
