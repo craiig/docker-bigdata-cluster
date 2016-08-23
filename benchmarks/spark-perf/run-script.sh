@@ -2,6 +2,8 @@
 
 CONFIG_PATH=./spark-perf/config
 source .source.sh
+source ../../local-hadoop/source.sh
+
 
 #local_config {{{
 function local_config {
