@@ -5,8 +5,8 @@ source .source.sh
 
 #local_config {{{
 function local_config {
-  sed -i '/SPARK_CLUSTER_URL = /c\SPARK_CLUSTER_URL = \"spark:\/\/%s:7077 % socket.gethostname()\"' $CONFIG_PATH/config.py
-  sed -i '/SCALE_FACTOR = /c\SCALE_FACTOR = 0.05' $CONFIG_PATH/config.py
+  sed -i '/SPARK_CLUSTER_URL = /c\SPARK_CLUSTER_URL = \"spark:\/\/%s:7077\" % socket.gethostname()' $CONFIG_PATH/config.py
+  sed -i '/SCALE_FACTOR = /c\SCALE_FACTOR = 0.001' $CONFIG_PATH/config.py
   sed -i '/SPARK_DRIVER_MEMORY = /c\SPARK_DRIVER_MEMORY = \"512m\"' $CONFIG_PATH/config.py
   sed -i '/spark\.executor\.memory/c\JavaOptionSet(\"spark\.executor\.memory\", \[\"10g\"\]),' $CONFIG_PATH/config.py
 }
