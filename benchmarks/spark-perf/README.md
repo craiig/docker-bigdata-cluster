@@ -25,6 +25,11 @@ exists then it returns an eror.
 $ make
 ```
 
+#### Changing the Spark Folders
+
+Just change the "spark-bin" variable in the source.sh file in local-hadoop to
+your path and rerun. The script will resource the file for you.
+
 ## SSH Setup
 
 The ./bin/run script that is used to run the tests uses ssh. If you do not want
