@@ -47,6 +47,7 @@ if [[ "$1" == "config" ]]; then
 
   # set spark_home_dir to $SPARK_BIN
   sed -i '/SPARK_HOME_DIR = /c\SPARK_HOME_DIR = \"'"$SPARK_BIN"'\"' $CONFIG_PATH/config.py
+  sed -i '/PROMPT_FOR_DELETES = /c\PROMPT_FOR_DELETES = False' $CONFIG_PATH/config.py
 
   sed -i '/RUN_SPARK_TESTS = /c\RUN_SPARK_TESTS = True' $CONFIG_PATH/config.py
   sed -i '/RUN_PYSPARK_TESTS = /c\RUN_PYSPARK_TESTS = True' $CONFIG_PATH/config.py
