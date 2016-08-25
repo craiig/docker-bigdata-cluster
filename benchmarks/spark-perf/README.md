@@ -30,6 +30,13 @@ $ make
 Just change the "spark-bin" variable in the source.sh file in local-hadoop to
 your path and rerun. The script will resource the file for you.
 
+#### Clean
+
+In the event that you had to interrupt an execution, run `make clean`. This will
+remove some temporary files that tell the script that an execution is underway.
+While these files are present an execution of `make` will fetch logs instead of
+executing.
+
 ## SSH Setup
 
 The ./bin/run script that is used to run the tests uses ssh. If you do not want
