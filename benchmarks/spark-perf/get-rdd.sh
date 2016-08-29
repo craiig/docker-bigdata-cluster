@@ -22,53 +22,63 @@ if [ -z "$2" ]; then
 
   appid=`expr match "$1" '.*\(app-[0-9]\{14\}-[0-9]\{4\}*\)'`
 
-  hits_file="rdd_hits.txt"
-  misses_file="rdd_misses.txt"
-  evictions_file="rdd_evictions.txt"
-  size_file="rdd_size.txt"
-  hits_ratio_file="rdd_hits_ratio.txt"
-  misses_ratio_file="rdd_misses_ratio.txt"
 
-  destination="../../rdd_hits_and_misses/${appid}"
+  cd ../..
+  destination="$(pwd)/rdd_hits_and_misses/${appid}"
   mkdir -p "$destination"
+  cd -
+
+  hits_file="${destination}/rdd_hits.txt"
+  misses_file="${destination}/rdd_misses.txt"
+  evictions_file="${destination}/rdd_evictions.txt"
+  size_file="${destination}/rdd_size.txt"
+  computation_file="${destination}/rdd_computation.txt"
+  hits_ratio_file="${destination}/rdd_hits_ratio.txt"
+  misses_ratio_file="${destination}/rdd_misses_ratio.txt"
 
 
-  rm -rf "$destination"/"$hits_file"
-  touch "$destination"/"$hits_file"
+  rm -rf "$hits_file"
+  touch "$hits_file"
 
-  rm -rf "$destination"/"$hits_ratio_file"
-  touch "$destination"/"$hits_ratio_file"
+  rm -rf "$hits_ratio_file"
+  touch "$hits_ratio_file"
 
-  rm -rf "$destination"/"$misses_file"
-  touch "$destination"/"$misses_file"
+  rm -rf "$misses_file"
+  touch "$misses_file"
 
-  rm -rf "$destination"/"$misses_ratio_file"
-  touch "$destination"/"$misses_ratio_file"
+  rm -rf "$misses_ratio_file"
+  touch "$misses_ratio_file"
 
-  rm -rf "$destination"/"$evictions_file"
-  touch "$destination"/"$evictions_file"
+  rm -rf "$evictions_file"
+  touch "$evictions_file"
 
-  rm -rf "$destination"/"$size_file"
-  touch "$destination"/"$size_file"
+  rm -rf "$size_file"
+  touch "$size_file"
+
+  rm -rf "$computation_file"
+  touch "$computation_file"
 
   # Combine all app log files into one file called rdd_hits.txt
-  grep 'found block rdd_[0-9]\{1,\}_[0-9]\{1,\}' * -Ri > "$destination"/"$hits_file"
-  grep 'Partition rdd_[0-9]\{1,\}_[0-9]\{1,\} not found, computing it' * -Ri > "$destination"/"$misses_file"
-  grep 'Dropping block' * -Ri > "$destination/$evictions_file"
-  grep 'stored as values in memory' * -Ri | grep 'rdd' > "$destination/$size_file"
+  grep 'found block rdd_[0-9]\{1,\}_[0-9]\{1,\}' * -Ri > "$hits_file"
+  grep 'Partition rdd_[0-9]\{1,\}_[0-9]\{1,\} not found, computing it' * -Ri > "$misses_file"
+  grep 'Dropping block' * -Ri > "$evictions_file"
+  grep 'stored as values in memory' * -Ri | grep 'rdd' > "$size_file"
+  grep 'computed and cached in' * -Ri > "$computation_file"
 
   # Delete everything from beginning of line to first occurrence of "rdd"
-  sed -i 's/^.*rdd/rdd/p' "$destination"/"$hits_file"
-  sed -i 's/^.*rdd/rdd/p' "$destination"/"$misses_file"
-  sed -i 's/^.*rdd/rdd/p' "$destination"/"$evictions_file"
-  sed -i 's/^.*rdd/rdd/p' "$destination"/"$size_file"
+  sed -i 's/^.*rdd/rdd/p' "$hits_file"
+  sed -i 's/^.*rdd/rdd/p' "$misses_file"
+  sed -i 's/^.*rdd/rdd/p' "$evictions_file"
+  sed -i 's/^.*rdd/rdd/p' "$size_file"
+  sed -i 's/^.*rdd/rdd/p' "$computation_file"
 
   # Delete from the end of the rdd tag (denoted by a space) to the eol
-  sed -i "s@ .*@@g" "$destination"/"$hits_file"
-  sed -i "s@ .*@@g" "$destination"/"$misses_file"
-  sed -i "s@ .*@@g" "$destination"/"$evictions_file"
-  sed -i "s@ .*estimated size@  @g" "$destination"/"$size_file"
-  sed -i "s@, .*@@g" "$destination"/"$size_file"
+  sed -i "s@ .*@@g" "$hits_file"
+  sed -i "s@ .*@@g" "$misses_file"
+  sed -i "s@ .*@@g" "$evictions_file"
+  sed -i "s@ .*estimated size@  @g" "$size_file"
+  sed -i "s@, .*@@g" "$size_file"
+  sed -i "s@ .*computed and cached in@@g" "$computation_file"
 
 
 else
@@ -90,6 +100,8 @@ sort -bnr "$misses_file" > tmp && mv tmp "$misses_file"
 
 sort "$evictions_file" | uniq -c > tmp && mv tmp "$evictions_file"
 sort -bnr "$evictions_file" > tmp && mv tmp "$evictions_file"
+
+sort -bnr "$computation_file" > tmp && mv tmp "$computation_file"
 
 sort master | uniq -c > tmp && mv tmp master
 sort -bnr master > tmp && mv tmp master
@@ -200,7 +212,7 @@ exec 0<&10 10<&-
 rm -rf master
 rm -rf master_ratio
 
-rm -rf rdd_hits_ratio.txt
+rm -rf $hits_ratio_file
 rm -rf rdd_misses_ratio.txt
 
 for((i=0;i<id_count;i++)); do
@@ -209,7 +221,7 @@ for((i=0;i<id_count;i++)); do
   miss_rate=$(echo "scale=3; ($misses*100 / $total)" | bc -l)
   hit_rate=$(echo "(100 - $miss_rate)" | bc -l)
 
-  echo "$hit_rate rdd_${master_id[$i]}_${master_blockid[$i]}" >> rdd_hits_ratio.txt
+  echo "$hit_rate rdd_${master_id[$i]}_${master_blockid[$i]}" >> $hits_ratio_file
   echo "$miss_rate rdd_${master_id[$i]}_${master_blockid[$i]}" >> rdd_misses_ratio.txt
 done
 

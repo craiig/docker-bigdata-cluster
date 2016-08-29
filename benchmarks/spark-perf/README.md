@@ -19,11 +19,25 @@ fetch the logs.
 
 If neither the .source.sh file or .timestamp_file exist then the benchmarks will
 run. If both files exist then this command fetches the logs. If only one of them
-exists then it returns an eror.
+exists then it returns an error.
 
 ```bash
 $ make
 ```
+
+#### Changing the Spark Folders
+
+Just change the "spark-bin" variable in the source.sh file in local-hadoop to
+your path and rerun. The script will resource the file for you. You will also
+need to copy over the spark-defaults.conf file in local-hadoop/spark/conf to
+your custom build.
+
+#### Clean
+
+In the event that you had to interrupt an execution, run `make clean`. This will
+remove some temporary files that tell the script that an execution is underway.
+While these files are present an execution of `make` will fetch logs instead of
+executing.
 
 ## SSH Setup
 
