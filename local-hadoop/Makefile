@@ -41,6 +41,17 @@ java: jdk-8u77-linux-x64.tar.gz
 
 -include ../benchmarks/Makefile.options
 -include ../spark-utils/sparkutils.mk
+SPARK_SHELL_ARGS := --master yarn --executor-memory 2g --driver-memory 1g --num-executors 2 \
+	--conf spark.eventLog.enabled=true \
+	--conf spark.logLineage=true
+	#--conf spark.serializer=org.apache.spark.serializer.KryoSerializer
+#--conf spark.authenticate=true
+
+SPARK_SHELL_ARGS_LIMITED := --master yarn --executor-memory 2g --driver-memory 1g --num-executors 1 \
+	--conf spark.eventLog.enabled=true \
+	--conf spark.logLineage=true 
+	#--conf spark.serializer=org.apache.spark.serializer.KryoSerializer
+
 spark-shell: all $(SPARK_UTILS_JAR)
 	mkdir -p shell-context1
 	cd shell-context1; spark-shell $(SPARK_SHELL_ARGS) --jars $(SPARK_UTILS_JAR)
@@ -48,3 +59,10 @@ spark-shell: all $(SPARK_UTILS_JAR)
 spark-shell2: all $(SPARK_UTILS_JAR)
 	mkdir -p shell-context2
 	cd shell-context2; spark-shell $(SPARK_SHELL_ARGS) --jars $(SPARK_UTILS_JAR)
+
+spark-shell2-limited:
+	mkdir -p shell-context2
+	cd shell-context2; spark-shell $(SPARK_SHELL_ARGS_LIMITED) --jars $(SPARK_UTILS_JAR)
+
+spark-shell-local: $(SPARK_UTILS_JAR)
+	./spark-shell-local.sh $@
