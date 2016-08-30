@@ -11,17 +11,17 @@ start:
 	make -C docker-hadoop start
 	#generate a config (docker container needs to be running)
 	make -C ./hadoop-config-gen clean all
-	make -C ./docker-spark start
+	#make -C ./docker-spark start
 
 stop:
 	-make -C docker-hadoop stop
 	-make -C hadoop-config-gen clean
-	-make -C docker-spark stop
+	#-make -C docker-spark stop
 
 clean:
 	make -C docker-hadoop clean
 	make -C ./hadoop-config-gen clean
-	make -C docker-spark clean
+	#make -C docker-spark clean
 
 
 start-accumulo:
