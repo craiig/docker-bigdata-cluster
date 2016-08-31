@@ -98,8 +98,11 @@ def get_executor_stats(logs):
         eid = get_executor_id(l)
         if eid == None:
             print >>sys.stderr, "Warning: {log} is not a valid executor log".format(log=l)
+            continue
+
         stats = parse_executor_stats(l)
         ret.append( (eid, stats) )
+    return ret
 
 def is_valid_event_log(log):
     #increase this if you have problems finding the event log start 
@@ -156,7 +159,6 @@ def parse_event_stats(log):
                 print l
                 raise
 
-    print(json.dumps(stats, indent=4))
     return stats
 
 def get_event_stats(logs):
@@ -164,6 +166,7 @@ def get_event_stats(logs):
     for l in logs:
     	if not is_valid_event_log(l):
             print >>sys.stderr, "Warning: {log} is not a valid event log".format(log=l)
+            continue
 
         ret.append(parse_event_stats(l))
 
@@ -178,10 +181,14 @@ if args.events:
     [check_file(l) for l in args.events]
 
 if args.executors:
+    print args.executors
     exec_stats = get_executor_stats(args.executors)
+    print "Executor Stats:"
+    print(json.dumps(exec_stats, indent=4))
 else:
     exec_stats = None
 
 if args.events:
     event_stats = get_event_stats(args.events)
-    pprint(event_stats)
+    print "Event Log Stats:"
+    print(json.dumps(event_stats, indent=4))
