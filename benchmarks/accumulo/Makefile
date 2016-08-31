@@ -35,3 +35,12 @@ perf-reader:
 
 perf-reader2:
 	sudo -u cam14 bash -c "source ../../local-hadoop/source.sh && ../../local-hadoop/spark/bin/spark-submit $(SPARK_SUBMIT_ARGS) --class BDBReader $(TARGET) accumulo $(ZOOKEEPER) root accumulo"
+
+
+copy-data-to-hdfs-1node:
+	hdfs dfs -rm -r -f /user/spark/benchmark
+	hdfs dfs -mkdir -p /user/spark/benchmark
+	hdfs dfs -put -f ../bdb/data//text-deflate/1node/rankings /user/spark/benchmark/rankings
+	hdfs dfs -put -f ../bdb/data//text-deflate/1node/uservisits /user/spark/benchmark/uservisits
+	hdfs dfs -put -f ../bdb/data//text-deflate/1node/crawl /user/spark/benchmark/crawl
+	hdfs dfs -cp /user/spark/benchmark/rankings /user/spark/benchmark/scratch

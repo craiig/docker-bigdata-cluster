@@ -39,6 +39,7 @@ def parse_executor_stats(log):
     # stats['MemoryStore.all_blocks'] = []
     stats['MemoryStore.max_occupancy'] = 0
     stats['partition_misses'] = 0
+    stats['partition_stored'] = 0
     stats['partition_not_stored'] = 0
     stats['partition_hits'] = 0
     stats['partition_hits_local'] = 0
@@ -58,6 +59,7 @@ def parse_executor_stats(log):
                     bytes = human2bytes(m.group(4))
                     stats['MemoryStore.max_occupancy'] = max(bytes, stats['MemoryStore.max_occupancy'])
                     stats['MemoryStore.final_occupancy'] = m.group(4)
+                    stats['partition_stored'] += 1
                     # stats['MemoryStore.all_blocks'].append( m.group(1) )
 
                 #another way to see memorystore occupancy

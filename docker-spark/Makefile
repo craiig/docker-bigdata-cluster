@@ -90,23 +90,23 @@ bdb-prepare-data-5nodes:
 # in progress attempted to drop all tables in metastore, replaced with sledgehammer approach below to clear metastore_db directly
 #$(DOCKER_EXEC) bash -c "cd /root && spark-sql -e 'show tables' | grep -v 'SET' | awk '{print $$1}' | xargs -I '{}' spark-sql -e 'drop table {}'"
 bdb-prepare-data-1node:
-	hdfs dfs -rm -R -f /user/hive
-	$(DOCKER_EXEC) rm -rf metastore_db
+	#hdfs dfs -rm -R -f /user/hive
+	#$(DOCKER_EXEC) rm -rf metastore_db
 	hdfs dfs -rm -r -f /user/spark/benchmark
 	hdfs dfs -mkdir -p /user/spark/benchmark
-	hdfs dfs -put -f ../benchmark-bdb/data//text-deflate/1node/rankings /user/spark/benchmark/rankings
-	hdfs dfs -put -f ../benchmark-bdb/data//text-deflate/1node/uservisits /user/spark/benchmark/uservisits
-	hdfs dfs -put -f ../benchmark-bdb/data//text-deflate/1node/crawl /user/spark/benchmark/crawl
+	hdfs dfs -put -f ../benchmarks/bdb/data//text-deflate/1node/rankings /user/spark/benchmark/rankings
+	hdfs dfs -put -f ../benchmarks/bdb/data//text-deflate/1node/uservisits /user/spark/benchmark/uservisits
+	hdfs dfs -put -f ../benchmarks/bdb/data//text-deflate/1node/crawl /user/spark/benchmark/crawl
 	hdfs dfs -cp /user/spark/benchmark/rankings /user/spark/benchmark/scratch
 
 bdb-prepare-data-tiny:
-	hdfs dfs -rm -R -f /user/hive
-	$(DOCKER_EXEC) rm -rf metastore_db
+	#hdfs dfs -rm -R -f /user/hive
+	#$(DOCKER_EXEC) rm -rf metastore_db
 	hdfs dfs -rm -r -f /user/spark/benchmark
 	hdfs dfs -mkdir -p /user/spark/benchmark
-	hdfs dfs -put -f ../benchmark-bdb/data//text/tiny/rankings /user/spark/benchmark/rankings
-	hdfs dfs -put -f ../benchmark-bdb/data//text/tiny/uservisits /user/spark/benchmark/uservisits
-	hdfs dfs -put -f ../benchmark-bdb/data//text/tiny/crawl /user/spark/benchmark/crawl
+	hdfs dfs -put -f ../benchmarks/bdb/data//text/tiny/rankings /user/spark/benchmark/rankings
+	hdfs dfs -put -f ../benchmarks/bdb/data//text/tiny/uservisits /user/spark/benchmark/uservisits
+	hdfs dfs -put -f ../benchmarks/bdb/data//text/tiny/crawl /user/spark/benchmark/crawl
 	hdfs dfs -cp /user/spark/benchmark/rankings /user/spark/benchmark/scratch
 
 # we have one prepare sql rule because it's the same regardless of the data set size used
