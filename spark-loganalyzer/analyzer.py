@@ -118,9 +118,18 @@ def is_valid_event_log(log):
     return False
 
 def parse_event_stats(log):
+
     stats = odict()
     stats['event_counts'] = {}
-    stats['metric_totals'] = {}
+    stats['stage_stats'] = odict()
+
+    def get_stage_stats(stageid):
+        if stageid not in stats['stage_stats']:
+            nstats = odict()
+            nstats['metric_totals'] = {}
+            stats['stage_stats'][stageid] = nstats
+
+        return stats['stage_stats'][stageid]
 
     with open(log) as f:
         for l in f:
@@ -130,6 +139,7 @@ def parse_event_stats(log):
                 stats['event_counts'][event] = stats['event_counts'].get(event,0) + 1
 
                 if event == 'SparkListenerTaskEnd':
+                    s = get_stage_stats( j['Stage ID'] )
                     metrics_capture = [
                             'Executor Deserialize Time',
                             'Executor Run Time',
@@ -138,8 +148,7 @@ def parse_event_stats(log):
                     ]
 
                     metrics = j['Task Metrics']
-                    # pprint (metrics)
-                    totals = stats['metric_totals']
+                    totals = s['metric_totals']
                     for e in metrics_capture:
                         totals[e] = totals.get(e, 0) + metrics[e]
 
@@ -147,7 +156,7 @@ def parse_event_stats(log):
                 print l
                 raise
 
-    pprint(stats)
+    print(json.dumps(stats, indent=4))
     return stats
 
 def get_event_stats(logs):
