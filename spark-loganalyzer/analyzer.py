@@ -144,22 +144,49 @@ def parse_event_stats(log):
                 stats['event_counts'][event] = stats['event_counts'].get(event,0) + 1
 
                 if event == 'SparkListenerTaskEnd':
+                    # pprint(j)
                     s = get_stage_stats( j['Stage ID'] )
                     metrics_capture = [
                             'Executor Deserialize Time',
                             'Executor Run Time',
                             'Result Serialization Time',
                             'JVM GC Time',
+                            'Block Read Time',
+                            'Block Write Time'
                     ]
 
                     metrics = j['Task Metrics']
                     totals = s['metric_totals']
                     for e in metrics_capture:
-                        totals[e] = totals.get(e, 0) + metrics[e]
+                        if e in metrics:
+                            totals[e] = totals.get(e, 0) + metrics[e]
+
+                    #capture input metrics specially
+                    if 'Input Metrics' in metrics:
+                        inp = metrics['Input Metrics']
+                        inptype = inp['Data Read Method']
+                        #create if not exists
+                        s['Input Metrics'] = s.get('Input Metrics', {})
+                        s['Input Metrics'][inptype] = s['Input Metrics'].get(inptype, {})
+                        
+                        inpmetrics = s['Input Metrics'][inptype]
+                        inpmetrics['Bytes Read'] = inpmetrics.get('Bytes Read', 0) + inp['Bytes Read']
+                        inpmetrics['Records Read'] = inpmetrics.get('Records Read', 0) + inp['Records Read']
+
+                    #capture things that happened to block
+                    if 'Updated Blocks' in metrics:
+                        # pprint(metrics)
+                        for b in metrics['Updated Blocks']:
+                            # pprint(b)
+                            if b['Status']['Storage Level']['Use Memory'] == True:
+                                s['Blocks Cached In Memory'] = s.get('Blocks Cached In Memory', 0) + 1
+                                s['Bytes Cached in Memory'] = s.get('Bytes Cached in Memory', 0) + b['Status']['Memory Size']
+                                #todo handle eviction counts
 
             except Exception as e:
+                pass
                 print l
-                raise
+                print e
 
     return stats
 
