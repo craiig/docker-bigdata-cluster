@@ -25,7 +25,7 @@ def get_executor_id(log):
     with open(log) as f:
         count = 0
         for l in f:
-            m = re.search("INFO executor.Executor: Starting executor ID (\d) on host ([\d\.]*)", l, flags=re.IGNORECASE)
+            m = re.search("Executor: Starting executor ID (\d) on host (.*)", l, flags=re.IGNORECASE)
             if m:
                 return (m.group(1), m.group(2))
             count += 1
@@ -48,13 +48,13 @@ def parse_executor_stats(log):
     with open(log) as f:
         for l in f:
             try:
-                m = re.search("INFO storage.MemoryStore: MemoryStore started with capacity (.*)$", l, flags=re.IGNORECASE)
+                m = re.search("MemoryStore: MemoryStore started with capacity (.*)$", l, flags=re.IGNORECASE)
                 if m:
                     stats['MemoryStore.capacity'] = m.group(1)
 
                 # note: there is a bug in the spark logging, where 'free' is actually current occupancy
                 # see storage/MemoryStore.scala
-                m = re.search("INFO storage.MemoryStore: Block (.*) stored as (.*) in memory \(estimated size (.*), free (.*)\)", l, flags=re.IGNORECASE)
+                m = re.search("MemoryStore: Block (.*) stored as (.*) in memory \(estimated size (.*), free (.*)\)", l, flags=re.IGNORECASE)
                 if m:
                     bytes = human2bytes(m.group(4))
                     stats['MemoryStore.max_occupancy'] = max(bytes, stats['MemoryStore.max_occupancy'])
@@ -63,21 +63,21 @@ def parse_executor_stats(log):
                     # stats['MemoryStore.all_blocks'].append( m.group(1) )
 
                 #another way to see memorystore occupancy
-                m = re.search("INFO storage.MemoryStore: Memory use = (.*) \(blocks\) \+ (.*) \(scratch space shared across (.*) tasks\(s\)\) = (.*)\. Storage limit = (.*)", l, flags=re.IGNORECASE)
+                m = re.search("MemoryStore: Memory use = (.*) \(blocks\) \+ (.*) \(scratch space shared across (.*) tasks\(s\)\) = (.*)\. Storage limit = (.*)", l, flags=re.IGNORECASE)
                 if m:
                     bytes = human2bytes(m.group(4))
                     stats['MemoryStore.max_occupancy'] = max(bytes, stats['MemoryStore.max_occupancy'])
                     stats['MemoryStore.final_occupancy'] = m.group(4)
 
-                m = re.search("INFO spark.CacheManager: Partition (.*) not found, computing it", l, flags=re.IGNORECASE)
+                m = re.search("CacheManager: Partition (.*) not found, computing it", l, flags=re.IGNORECASE)
                 if m:
                     stats['partition_misses'] += 1
 
-                m = re.search("INFO storage.MemoryStore: Will not store (.*) as it would require dropping another block from the same RDD", l, flags=re.IGNORECASE)
+                m = re.search("MemoryStore: Will not store (.*) as it would require dropping another block from the same RDD", l, flags=re.IGNORECASE)
                 if m:
                     stats['partition_not_stored'] += 1
 
-                m = re.search("INFO storage.BlockManager: Found block (.*) (.*)", l, flags=re.IGNORECASE)
+                m = re.search("BlockManager: Found block (.*) (.*)", l, flags=re.IGNORECASE)
                 if m:
                     stats['partition_hits'] += 1
                     if m.group(2) == 'locally':
@@ -85,7 +85,7 @@ def parse_executor_stats(log):
                     elif m.group(2) == 'remotely':
                         stats['partition_hits_remote'] += 1
 
-                m = re.search("INFO executor.Executor: Finished task (.*) in stage (.*) \(TID (.*)\)", l, flags=re.IGNORECASE)
+                m = re.search("Executor: Finished task (.*) in stage (.*) \(TID (.*)\)", l, flags=re.IGNORECASE)
                 if m:
                     stats['tasks_run'] += 1
             except Exception as e:
