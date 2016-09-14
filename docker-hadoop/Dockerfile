@@ -44,12 +44,12 @@ RUN yum install -y git cmake gcc-c++
 #ENV JAVA_TOOL_OPTIONS="-XX:+PreserveFramePointer -agentpath:/root/perf-map-agent/out/libperfmap.so"
 #RUN echo "export JAVA_TOOL_OPTIONS=\"-XX:+PreserveFramePointer -agentpath:/root/perf-map-agent/out/libperfmap.so\"" >> ~/.bash_profile
 
-# setup yourkit jvm profiler
-RUN mkdir -p /root/yourkit
-COPY build/packages/yjp.tar.bz /root/yourkit/
-RUN cd ~/yourkit && tar -vxjf yjp.tar.bz --strip-components=1
-ENV JAVA_TOOL_OPTIONS="-XX:+PreserveFramePointer -agentpath:/root/yourkit/bin/linux-x86-64/libyjpagent.so"
-RUN echo "export JAVA_TOOL_OPTIONS=\"-XX:+PreserveFramePointer -agentpath:/root/yourkit/bin/linux-x86-64/libyjpagent.so\"" >> ~/.bash_profile
+# setup jvm profiler
+RUN mkdir -p /root/profiler
+COPY build/packages/honest-profiler.zip /root/profiler/
+RUN cd ~/profiler && unzip honest-profiler.zip
+ENV JAVA_TOOL_OPTIONS="-XX:+PreserveFramePointer -agentpath:/root/profiler/liblagent.so=start=0"
+RUN echo "export JAVA_TOOL_OPTIONS=\"-XX:+PreserveFramePointer -agentpath:/root/profiler/liblagent.so=start=0\"" >> ~/.bash_profile
 
 # download native support
 RUN mkdir -p /tmp/native

@@ -41,9 +41,14 @@ java: jdk-8u77-linux-x64.tar.gz
 
 -include ../benchmarks/Makefile.options
 -include ../spark-utils/sparkutils.mk
-SPARK_SHELL_ARGS := --master yarn --executor-memory 2g --driver-memory 1g --num-executors 2 \
+SPARK_SHELL_ARGS := --master yarn --executor-memory 4g --driver-memory 1g --num-executors 2 \
 	--conf spark.eventLog.enabled=true \
-	--conf spark.logLineage=true
+	--conf spark.logLineage=true \
+	--conf spark.cleaner.referenceTracking=false \
+	--conf spark.profiling.sampleStacks=true \
+	--conf spark.profiling.dir="/root/profiler/" \
+	--conf spark.executorEnv.JAVA_TOOL_OPTIONS="-agentpath:/root/profiler/liblagent.so=start=0"
+	# --conf spark.yarn.appMasterEnv.JAVA_TOOL_OPTIONS="-agentpath:/root/yourkit/bin/linux-x86-64/libyjpagent.so" \
 	#--conf spark.serializer=org.apache.spark.serializer.KryoSerializer
 #--conf spark.authenticate=true
 

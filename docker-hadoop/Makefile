@@ -18,7 +18,9 @@ all: $(build)
 packages_dir := build/packages
 packages := java.rpm \
 	hadoop-native-64-2.7.1.tgz \
-	hadoop-2.7.1.tar.gz
+	hadoop-2.7.1.tar.gz \
+	honest-profiler.zip
+	
 packages := $(packages:%=$(packages_dir)/%)
 .PRECIOUS: $(packages)
 
@@ -29,6 +31,9 @@ $(packages_dir)/java.rpm: | $(packages_dir)
 	curl -L \
 		'http://download.oracle.com/otn-pub/java/jdk/8u77-b03/jdk-8u77-linux-x64.rpm'\
 	       	-H 'Cookie: oraclelicense=accept-securebackup-cookie' > $@
+
+$(packages_dir)/honest-profiler.zip: ../java-profiler/honest-profiler/target/honest-profiler.zip | $(packages_dir)
+	cp $< $@
 
 $(packages_dir)/hadoop-native-64-2.7.1.tgz: | $(packages_dir)
 	cd $(packages_dir) && curl -LO https://github.com/sequenceiq/docker-hadoop-build/releases/download/v2.7.1/hadoop-native-64-2.7.1.tgz
