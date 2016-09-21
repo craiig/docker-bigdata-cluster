@@ -31,6 +31,9 @@ yarn.nodemanager.resource.memory-mb
 	<name>yarn.nodemanager.vmem-check-enabled</name>
 	<value>false</value>
 	</property>
+	<name>yarn.nodemanager.pmem-check-enabled</name>
+	<value>false</value>
+	</property>
 
 
     <property>
