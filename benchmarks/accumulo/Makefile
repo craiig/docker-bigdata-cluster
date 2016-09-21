@@ -16,7 +16,7 @@ $(TARGET): ./bdbloader.scala ./bdbloader.sbt
 clean:
 	sbt clean
 
-ZOOKEEPER := $(shell cat cat ../../docker-zookeeper/build/hostname)
+ZOOKEEPER := $(shell cat ../../docker-zookeeper/build/hostname)
 
 run-loader: $(TARGET)
 	$(SPARK_SUBMIT) --class BDBLoader $(TARGET) accumulo $(ZOOKEEPER) root accumulo
