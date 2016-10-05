@@ -164,6 +164,7 @@ def parse_event_stats(log):
                     #capture input metrics specially
                     if 'Input Metrics' in metrics:
                         inp = metrics['Input Metrics']
+                        pprint(inp)
                         inptype = inp['Data Read Method']
                         #create if not exists
                         s['Input Metrics'] = s.get('Input Metrics', {})
@@ -172,6 +173,7 @@ def parse_event_stats(log):
                         inpmetrics = s['Input Metrics'][inptype]
                         inpmetrics['Bytes Read'] = inpmetrics.get('Bytes Read', 0) + inp['Bytes Read']
                         inpmetrics['Records Read'] = inpmetrics.get('Records Read', 0) + inp['Records Read']
+                        inpmetrics['Time To Read (ms)'] = inpmetrics.get('Time To Read (ms)', 0) + inp['Time To Read (ms)']
 
                     #capture things that happened to block
                     if 'Updated Blocks' in metrics:

@@ -17,8 +17,7 @@ $DIR/grab-event-logs-hdfs.sh $application_id
 samples=$(grep -iPoh '(?<=CPU Sampling Stopped. Log stored at: )(.*)' container_*/stderr)
 
 if [ ! -z "$samples" ]; then
-	rm -rf samples
-	mkdir samples
+	mkdir -p samples
 	for s in $samples; do
 		echo $s
 		docker cp $docker_id:$s samples/$(basename $s)
