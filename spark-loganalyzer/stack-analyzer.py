@@ -72,13 +72,17 @@ for l in sys.stdin:
     
     #serialization
     elif re.search("org.apache.spark.serializer.JavaSerializerInstance deserialize", l, flags=re.IGNORECASE):
-        cls = '(spark cache read) deserialization) spark.serializer deserialize'
+        cls = '(spark deserialize) serializer deserialize'
+        cls = '(spark deserialize) serializer deserialize '+l
+    elif re.search("org.apache.spark.serializer.DeserializationStream.*java.io.BufferedInputStream", l, flags=re.IGNORECASE):
+        cls = '(spark deserialize) java.io.BufferedInputStream '+l
     elif re.search("org.apache.spark.serializer.DeserializationStream", l, flags=re.IGNORECASE):
-        cls = '(spark cache read) deserialization) org.apache.spark.serializer.DeserializationStream'
+        cls = '(spark deserialize) org.apache.spark.serializer.DeserializationStream'
+        cls = '(spark deserialize) org.apache.spark.serializer.DeserializationStream ' +l
     elif re.search("org.apache.spark.serializer.JavaSerializer newInstance;", l, flags=re.IGNORECASE):
-        cls = '(spark cache write) serialization) spark.serializer new'
+        cls = '(spark serialize) spark.serializer new'
     elif re.search("org.apache.spark.serializer.SerializationStream", l, flags=re.IGNORECASE):
-        cls = '(spark cache write) serialization) org.apache.spark.serializer.SerializationStream.*'
+        cls = '(spark serialize) org.apache.spark.serializer.SerializationStream.*'
 
     # parts of reading data and writing it into the cache:
     # this happens as part of getOrCompute, so we classify it first

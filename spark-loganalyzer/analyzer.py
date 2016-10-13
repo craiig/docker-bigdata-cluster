@@ -164,7 +164,7 @@ def parse_event_stats(log):
                     #capture input metrics specially
                     if 'Input Metrics' in metrics:
                         inp = metrics['Input Metrics']
-                        pprint(inp)
+                        # pprint(inp)
                         inptype = inp['Data Read Method']
                         #create if not exists
                         s['Input Metrics'] = s.get('Input Metrics', {})
@@ -221,5 +221,5 @@ else:
 
 if args.events:
     event_stats = get_event_stats(args.events)
-    print "Event Log Stats:"
+    # print "Event Log Stats:"
     print(json.dumps(event_stats, indent=4))
