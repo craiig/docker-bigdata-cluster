@@ -62,7 +62,7 @@ yarn.nodemanager.resource.memory-mb
       yarn.nodemanager.log-dirs property (see also below).
     </description>
     <name>yarn.nodemanager.delete.debug-delay-sec</name>
-    <value>600</value>
+    <value>6000</value>
   </property>
 
 </configuration>

@@ -5,7 +5,7 @@
 # into:
 # results/benchmark_name/
 # run this from the results directory of your choice
-set -e
+#set -e
 
 folder=./
 
@@ -14,6 +14,7 @@ for file in $folder/*.err; do
 	app_ids=( $(grep -Po 'application_\d+_\d+' "${file}" | sort | uniq) )
 
 	for app in "${app_ids[@]}"; do
-		mv "userlogs/${app}" ${file%.*}
+		mkdir -p ${file%.*}
+		cp -R "userlogs/${app}" ${file%.*}
 	done
 done

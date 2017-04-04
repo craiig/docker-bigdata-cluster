@@ -58,10 +58,15 @@ SPARK_SHELL_ARGS_LIMITED := --master yarn --executor-memory 2g --driver-memory 1
 	#--conf spark.serializer=org.apache.spark.serializer.KryoSerializer
 
 spark-shell: all $(SPARK_UTILS_JAR)
+	#docker cp ../java-profiler/jvm-method-trace/build/jvm-method-trace.so hadoop_master-$(shell whoami):/root/profiler/
+	#docker cp ../java-profiler/jvm-method-trace/build/mtrace.so hadoop_master-$(shell whoami):/root/profiler/
+	#docker cp ../java-profiler/jvm-method-trace/java/target/jvm-method-trace-1.0.jar hadoop_master-$(shell whoami):/usr/java/jdk1.8.0_77/jre/demo/jvmti/mtrace/mtrace.jar
 	mkdir -p shell-context1
-	cd shell-context1; spark-shell $(SPARK_SHELL_ARGS) --jars $(SPARK_UTILS_JAR)
+	cd shell-context1; spark-shell $(SPARK_SHELL_ARGS) --jars $(SPARK_UTILS_JAR),
 
 spark-shell2: all $(SPARK_UTILS_JAR)
+	docker cp ../java-profiler/jvm-method-trace/build/jvm-method-trace.so hadoop_master-$(shell whoami):/root/profiler/
+	docker cp ../java-profiler/jvm-method-trace/build/mtrace.so hadoop_master-$(shell whoami):/root/profiler/
 	mkdir -p shell-context2
 	cd shell-context2; spark-shell $(SPARK_SHELL_ARGS) --jars $(SPARK_UTILS_JAR)
 
