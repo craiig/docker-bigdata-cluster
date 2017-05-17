@@ -16,12 +16,18 @@ $(TARGET): ./arjoin.scala ./arjoin.sbt
 clean:
 	sbt clean
 
+check-cache: $(TARGET)
+	$(SPARK_SUBMIT) --class CheckCache $(TARGET)
+
 run: $(TARGET)
-	$(SPARK_SUBMIT) --class ARJoin $(TARGET) 
+	$(SPARK_SUBMIT) --class ARJoin $(TARGET) 2>&1 | tee debug-run
 
 copy-data-to-hdfs:
 	hdfs dfs -mkdir -p /user/spark/benchmark/amazon_reviews/
 	hdfs dfs -put -f /mnt/scratch/benchmark_data/amazon_reviews/* /user/spark/benchmark/amazon_reviews/
+
+clean-logs:
+	 docker exec hadoop_master-cam14 bash -c "rm -rf /usr/local/hadoop/logs/userlogs/*"
 
 get-logs:
 	 docker exec hadoop_master-cam14 bash -c "tar -c /usr/local/hadoop/logs/userlogs/*" | tar -x -C . --strip-components=4 -k

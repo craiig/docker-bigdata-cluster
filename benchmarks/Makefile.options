@@ -11,6 +11,8 @@ SPARK_MODE ?= cluster-client
 
 ifeq ($(SPARK_MODE), cluster-client)
 SPARK_SUBMIT_ARGS := --master yarn-client #shows informative output locally
+else ifeq ($(SPARK_MODE), miga-local)
+SPARK_SUBMIT_ARGS := --master spark://miga:7077  #shows informative output locally
 else ifeq ($(SPARK_MODE), cluster-cluster)
 SPARK_SUBMIT_ARGS := --master yarn-cluster #shows nothing of interest locally
 else ifeq ($(SPARK_MODE), local)
@@ -20,9 +22,15 @@ endif
 #machine specific configurations
 hostname := $(shell hostname)
 ifeq ($(hostname), miga)
+ifeq ($(SPARK_MODE), miga-local)
+$(warning configuring for miga-local)
+SPARK_SUBMIT_ARGS += --num-executors 10 --executor-memory=20g \
+						 --driver-memory 1g
+else
 $(warning configuring for miga)
 SPARK_SUBMIT_ARGS += --num-executors 10 --executor-memory=2g \
 						 --driver-memory 1g
+endif
 else ifeq ($(hostname), octavia)
 $(warning configuring for octavia)
 SPARK_SUBMIT_ARGS += --executor-memory 2g --driver-memory 1g \

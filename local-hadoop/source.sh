@@ -13,8 +13,8 @@ export HADOOP_YARN_HOME=$HADOOP_PREFIX
 #export HADOOP_CONF_DIR=~/docker-volumes/hadoop-config/
 export HADOOP_CONF_DIR=$DIR/../hadoop-config-gen/out
 export YARN_CONF_DIR=$HADOOP_PREFIX/etc/hadoop
-# export SPARK_BIN=$DIR/spark
-export SPARK_BIN=~/Documents/custom-spark/spark-1.6.3-SNAPSHOT-bin-craig-extralogs
+export SPARK_BIN=$DIR/spark
+#export SPARK_BIN=~/Documents/custom-spark/spark-1.6.3-SNAPSHOT-bin-craig-extralogs
 export SPARK_PERF_LOGS=$DIR/../benchmarks/spark-perf/logs
 export EXECUTOR_LOGS=$SPARK_BIN/work
 

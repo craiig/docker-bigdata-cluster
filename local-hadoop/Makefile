@@ -45,11 +45,18 @@ SPARK_SHELL_ARGS := --master yarn --executor-memory 4g --driver-memory 1g --num-
 	--conf spark.eventLog.enabled=true \
 	--conf spark.logLineage=true \
 	--conf spark.cleaner.referenceTracking=false \
-	--conf spark.profiling.sampleStacks=true \
 	--conf spark.profiling.dir="/root/profiler/" \
+	--conf spark.profiling.sampleStacks=true \
 	--conf spark.executorEnv.JAVA_TOOL_OPTIONS="-agentpath:/root/profiler/liblagent.so=start=0"
+	#--conf spark.serializer=org.apache.spark.serializer.KryoSerializer \
+	#--conf spark.executorEnv.JAVA_TOOL_OPTIONS="-agentpath:/root/profiler/mtrace.so"
+	#--conf spark.profiling.dir="/root/profiler/" \
+	#--conf spark.executorEnv.JAVA_TOOL_OPTIONS=""
+	#--conf spark.executorEnv.JAVA_TOOL_OPTIONS="-agentpath:/root/profiler/liblagent.so=start=0 -agentpath:/root/profiler/jvm-method-trace.so"
+
+	#--conf spark.profiling.sampleStacks=true \
 	# --conf spark.yarn.appMasterEnv.JAVA_TOOL_OPTIONS="-agentpath:/root/yourkit/bin/linux-x86-64/libyjpagent.so" \
-	#--conf spark.serializer=org.apache.spark.serializer.KryoSerializer
+	#--conf spark.serializer=org.apache.spark.serializer.KryoSerializer \
 #--conf spark.authenticate=true
 
 SPARK_SHELL_ARGS_LIMITED := --master yarn --executor-memory 2g --driver-memory 1g --num-executors 1 \

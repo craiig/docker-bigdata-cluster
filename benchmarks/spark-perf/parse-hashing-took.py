@@ -4,6 +4,7 @@ import os
 import csv
 import argparse
 
+# grep -ir "Hashing took" *.err >
 # als.err:17/03/30 11:23:51 INFO ClosureCleaner: Hashing took: 73 ms
 re_took = re.compile('(.*?):.*?INFO.*?: Hashing took: (\d+) ms closure:(.*)$', re.I)
 
